@@ -32,6 +32,10 @@
 			{
 				"command": "kuba.pickPod",
 				"title": "Kuba: Pick Pod"
+			},
+			{
+				"command": "kuba.useNamespace",
+				"title": "Kuba: Use namespace"
 			}
 		],
 		"viewsContainers": {
