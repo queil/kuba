@@ -6,11 +6,11 @@ export function activate(context: vscode.ExtensionContext) {
 		const util = require('util');
 		const exec = util.promisify(require('child_process').exec);
 		
-		const { stdout, stderr } = await exec('kubectl.exe' + ' ' + argsString + ' ' + '-o jsonpath="{range .items[*]}{.metadata.name}{\',\'}{end}"');
+		const { stdout, stderr } = await exec('kubectl.exe' + ' ' + argsString + ' ' + '-o jsonpath="{.items[*].metadata.name}"');
 		if (stderr) {
 			vscode.window.showErrorMessage(stderr);
 		}
-		return stdout.split(",");
+		return stdout.split(" ");
 	}
 
 
