@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -35,7 +35,11 @@
 			},
 			{
 				"command": "kuba.useNamespace",
-				"title": "Kuba: Use namespace"
+				"title": "Kuba: Use Namespace"
+			},
+			{
+				"command": "kuba.useContext",
+				"title": "Kuba: Use Context"
 			}
 		],
 		"viewsContainers": {
@@ -47,10 +51,17 @@
 			{
 				"title": "Kuba configuration",
 				"properties": {
-					"kuba.dummySetting": {
-						"default": "0",
-						"type": "int",
-						"description": "Dummy"
+					"kuba.namespace": {
+						"type": "string",
+						"description": "Current namespace"
+					},
+					"kuba.pod": {
+						"type": "string",
+						"description": "Current pod"
+					},
+					"kuba.context": {			
+						"type": "string",
+						"description": "Current context"
 					}
 				}
 			}
