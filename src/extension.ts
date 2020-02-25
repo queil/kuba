@@ -146,7 +146,7 @@ class KubaConfigurationProvider implements vscode.DebugConfigurationProvider {
 					"pipeArgs": [],
 					"pipeCwd": "${workspaceFolder}",
 					"debuggerPath": "/root/vsdbg/vsdbg", 
-					"quoteArgs": true
+					"quoteArgs": false
 			    };
 				
 				config.sourceFileMap = 
