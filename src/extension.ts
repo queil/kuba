@@ -55,6 +55,42 @@ export function activate(context: vscode.ExtensionContext) {
 		const config = vscode.workspace.getConfiguration('kuba');
 		await config.update(key, value, vscode.ConfigurationTarget.Workspace);
 	}
+
+	async function quickPickPlus(placeholder: string, getItems:Promise<string[]>)
+	{
+		return await new Promise<string | undefined>(async (resolve, reject) => {
+			try 
+			{
+				const pick = vscode.window.createQuickPick();
+				pick.placeholder = placeholder;
+				
+				pick.onDidHide(() => 
+				{
+					pick.dispose();
+					resolve(undefined);
+				});
+				pick.onDidChangeSelection(selection => {
+					
+					pick.hide();
+					resolve(selection[0].label);
+				});
+				pick.show();
+				pick.busy = true;
+				pick.items = (await getItems).map(label => ({ label }));
+				pick.busy = false;
+				if (pick.items.length === 1) {
+					pick.selectedItems = [ pick.items[0] ];
+				}
+			} 
+			catch (error) 
+			{
+				console.error(error);
+				reject(undefined);
+			}
+		});
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////////
 	// 
 	// Extension main code
@@ -67,8 +103,8 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickPod', async () => {
 		
 		const namespace = await getOrPickNamespace();
-		const selectedPod = await vscode.window.showQuickPick(await kubectlGet(`get pod -n ${namespace}`), { placeHolder: `Getting pods in ${namespace}...` });
-        await updateConfig("pod", selectedPod); 			
+		const item = await quickPickPlus(`Kuba: getting pods in ${namespace}...`, kubectlGet(`get pod -n ${namespace}`));
+        await updateConfig("pod", item); 			
 		
 	}));
 
@@ -86,22 +122,22 @@ export function activate(context: vscode.ExtensionContext) {
 		const namespace = await getOrPickNamespace();
 		const pod = await getOrPickPod();
 
-		const selectedContainer = await vscode.window.showQuickPick(await getContainersInPod(pod, namespace), { placeHolder: `Getting containers in ${pod}...` });
-		await updateConfig("container", selectedContainer); 
+		const item = await quickPickPlus(`Kuba: getting containers in ${pod}...`, getContainersInPod(pod, namespace));
+		await updateConfig("container", item); 
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickNamespace', async () => {
 		
 		const context = await getOrPickContext();
-        const selectedNs = await vscode.window.showQuickPick(await kubectlGet("get namespaces"), { placeHolder: `Getting namespaces from ${context}...` });
-		await updateConfig("namespace", selectedNs); 
+		const item = await quickPickPlus(`Kuba: getting namespaces from ${context}...`, kubectlGet("get namespaces"));
+		await updateConfig("namespace", item); 
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickContext', async () => {
 		
-		const selectedContext = await vscode.window.showQuickPick(await kubectlGet("config get-contexts"), { placeHolder: 'Getting contexts...' });
-		await updateConfig("context", selectedContext); 
-		kubectl(`config use-context ${selectedContext}`);
+		const item = await quickPickPlus('Kuba: getting contexts...', kubectlGet("config get-contexts"));
+		await updateConfig("context", item); 
+		kubectl(`config use-context ${item}`);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.resetConfig', async () => {	
