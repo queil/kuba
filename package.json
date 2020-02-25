@@ -1,8 +1,8 @@
 {
 	"name": "kuba",
 	"displayName": "Kuba",
-	"description": "",
-	"version": "0.1.5",
+	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
+	"version": "0.1.6",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -15,7 +15,7 @@
 		"vscode": "^1.33.0"
 	},
 	"categories": [
-		"Other"
+		"Debuggers"
 	],
 	"activationEvents": [
 		"onDebug"
