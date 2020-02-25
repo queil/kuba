@@ -52,10 +52,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	async function updateConfig(key:string, value:string | undefined)
 	{
-		if (!value) { 
-			vscode.window.showErrorMessage(`Cannot set ${key} to undefined`); 
-			return;
-		}
 		const config = vscode.workspace.getConfiguration('kuba');
 		await config.update(key, value, vscode.ConfigurationTarget.Workspace);
 	}
@@ -106,6 +102,13 @@ export function activate(context: vscode.ExtensionContext) {
 		const selectedContext = await vscode.window.showQuickPick(await kubectlGet("config get-contexts"), { placeHolder: 'Getting contexts...' });
 		await updateConfig("context", selectedContext); 
 		kubectl(`config use-context ${selectedContext}`);
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('kuba.resetConfig', async () => {	
+		updateConfig("context", undefined);
+		updateConfig("namespace", undefined);
+		updateConfig("pod", undefined);
+		updateConfig("container", undefined);
 	}));
 }
 

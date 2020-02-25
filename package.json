@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -18,7 +18,7 @@
 		"Debuggers"
 	],
 	"activationEvents": [
-		"onDebug"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -44,6 +44,10 @@
 			{
 				"command": "kuba.pickContext",
 				"title": "Kuba: Pick Context"
+			},
+			{
+				"command": "kuba.resetConfig",
+				"title": "Kuba: Reset Config"
 			}
 		],
 		"viewsContainers": {
