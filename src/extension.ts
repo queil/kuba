@@ -34,20 +34,20 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showErrorMessage(stderr); 
 			return "Error";
 		}
-		return stdout;
+		return stdout.trim();
 	}
 
 	async function kubectlGet(argsString: string)
 	{
 		const stdout = await kubectl(`${argsString} -o name`);
-		const items = stdout.trim().split("\n").flatMap((s:string) => s.split('/').slice(-1)[0]);
+		const items = stdout.split("\n").flatMap((s:string) => s.split('/').slice(-1)[0]);
 		return items;
 	}
 
 	async function getContainersInPod(pod:string, ns: string)
 	{
 		const stdout = await kubectl(`get pod ${pod} -n ${ns} -o jsonpath="{.spec.containers[*].name}"`);
-		return stdout.trim().split("\n");
+		return stdout.split("\n");
 	}
 
 	async function updateConfig(key:string, value:string | undefined)
