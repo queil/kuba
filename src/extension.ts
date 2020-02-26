@@ -1,29 +1,35 @@
 import * as vscode from 'vscode';
-import { WorkspaceFolder, DebugConfiguration, ProviderResult, CancellationToken } from 'vscode';
+import { TiltTaskProvider } from './tiltTaskProvider';
+import { WorkspaceFolder, DebugConfiguration, CancellationToken } from 'vscode';
 
-async function getFromConfigOrCommand(settingName: string, commandName:string, errorMsg: string) 
-{
-	const config = vscode.workspace.getConfiguration('kuba');
-	let value = config.get<string>(settingName);
+export class KubaCommandRunner {
 
-	if (!value) {
-		await vscode.commands.executeCommand(commandName);
-		const config = vscode.workspace.getConfiguration('kuba');
-		value = config.get<string>(settingName);
-	} 
-	 
-	if (!value) {
-		vscode.window.showErrorMessage(errorMsg);
-		return "";
+	private Context: vscode.ExtensionContext;
+	constructor(context: vscode.ExtensionContext) {
+		this.Context = context;
 	}
-	return value;	
+
+	async getFromStateOrCommand(settingName: string, commandName:string, errorMsg: string) 
+	{
+		let value = this.Context.workspaceState.get<string>(settingName);
+
+		if (!value) {
+			await vscode.commands.executeCommand(commandName);
+			value = this.Context.workspaceState.get<string>(settingName);
+		} 
+		
+		if (!value) {
+			vscode.window.showErrorMessage(errorMsg);
+			return "";
+		}
+		return value;	
+	}
+
+	async getOrPickContext() { return this.getFromStateOrCommand('context', 'kuba.pickContext', "Context not selected. Run 'Kuba: Pick Context' command"); }
+	async getOrPickNamespace() { return this.getFromStateOrCommand('namespace', 'kuba.pickNamespace', "Namespace not selected. Run 'Kuba: Pick Namespace' command");	 }
+	async getOrPickPod() { return this.getFromStateOrCommand('pod', 'kuba.pickPod', "Pod not selected. Run 'Kuba: Pick Pod' command"); }
+	async getOrPickContainer() { return this.getFromStateOrCommand('container', 'kuba.pickContainer', "Container not selected. Run 'Kuba: Pick Container' command"); }
 }
-
-async function getOrPickContext() { return getFromConfigOrCommand('context', 'kuba.pickContext', "Context not selected. Run 'Kuba: Pick Context' command"); }
-async function getOrPickNamespace() { return getFromConfigOrCommand('namespace', 'kuba.pickNamespace', "Namespace not selected. Run 'Kuba: Pick Namespace' command");	 }
-async function getOrPickPod() { return getFromConfigOrCommand('pod', 'kuba.pickPod', "Pod not selected. Run 'Kuba: Pick Pod' command"); }
-async function getOrPickContainer() { return getFromConfigOrCommand('container', 'kuba.pickContainer', "Container not selected. Run 'Kuba: Pick Container' command"); }
-
 export function activate(context: vscode.ExtensionContext) {
 
 	async function kubectl(argsString: string):Promise<string> {
@@ -50,10 +56,9 @@ export function activate(context: vscode.ExtensionContext) {
 		return stdout.split("\n");
 	}
 
-	async function updateConfig(key:string, value:string | undefined)
+	async function updateState(key:string, value:string | undefined)
 	{
-		const config = vscode.workspace.getConfiguration('kuba');
-		await config.update(key, value, vscode.ConfigurationTarget.Workspace);
+		await context.workspaceState.update(key, value);
 	}
 
 	async function quickPickPlus(placeholder: string, getItems:Promise<string[]>)
@@ -96,55 +101,62 @@ export function activate(context: vscode.ExtensionContext) {
 	// Extension main code
 	//
 	//////////////////////////////////////////////////////////////////////////////
-	const provider = new KubaConfigurationProvider();
 
+	let workspaceRoot = vscode.workspace.rootPath;
+	if (!workspaceRoot) {
+		return;
+	}
+
+	const runner = new KubaCommandRunner(context);
+	const provider = new KubaConfigurationProvider(context, runner);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
-
+	context.subscriptions.push(vscode.tasks.registerTaskProvider(TiltTaskProvider.TiltType, new TiltTaskProvider(workspaceRoot)));
+	
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickPod', async () => {
 		
-		const namespace = await getOrPickNamespace();
+		const namespace = await runner.getOrPickNamespace();
 		const item = await quickPickPlus(`Kuba: getting pods in ${namespace}...`, kubectlGet(`get pod -n ${namespace}`));
-        await updateConfig("pod", item); 			
+        await updateState("pod", item); 			
 		
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickContainer', async () =>{
 		
-		const context = await getOrPickContext();
+		const context = await runner.getOrPickContext();
 		const maybeNewContext = await kubectl("config current-context");
 
 		if (maybeNewContext !== context)
 		{
 			vscode.window.showInformationMessage(`Kubectl context changed externally. Updating to ${maybeNewContext}`);
-			await updateConfig("context", maybeNewContext);
+			await updateState("context", maybeNewContext);
 		}
 
-		const namespace = await getOrPickNamespace();
-		const pod = await getOrPickPod();
+		const namespace = await runner.getOrPickNamespace();
+		const pod = await runner.getOrPickPod();
 
 		const item = await quickPickPlus(`Kuba: getting containers in ${pod}...`, getContainersInPod(pod, namespace));
-		await updateConfig("container", item); 
+		await updateState("container", item); 
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickNamespace', async () => {
 		
-		const context = await getOrPickContext();
+		const context = await runner.getOrPickContext();
 		const item = await quickPickPlus(`Kuba: getting namespaces from ${context}...`, kubectlGet("get namespaces"));
-		await updateConfig("namespace", item); 
+		await updateState("namespace", item); 
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickContext', async () => {
 		
 		const item = await quickPickPlus('Kuba: getting contexts...', kubectlGet("config get-contexts"));
-		await updateConfig("context", item); 
+		await updateState("context", item); 
 		kubectl(`config use-context ${item}`);
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.resetConfig', async () => {	
-		updateConfig("context", undefined);
-		updateConfig("namespace", undefined);
-		updateConfig("pod", undefined);
-		updateConfig("container", undefined);
+		updateState("context", undefined);
+		updateState("namespace", undefined);
+		updateState("pod", undefined);
+		updateState("container", undefined);
 	}));
 }
 
@@ -152,14 +164,21 @@ export function deactivate() {}
 
 class KubaConfigurationProvider implements vscode.DebugConfigurationProvider {
 
+	private Context: vscode.ExtensionContext;
+	private Runner: KubaCommandRunner;
+	constructor(context: vscode.ExtensionContext, runner: KubaCommandRunner) {
+		this.Context = context;
+		this.Runner = runner;
+	}
+
 	async resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: CancellationToken): Promise<vscode.DebugConfiguration | undefined> {
 
 		if (config.name === '.NET Core Attach to K8s (Kuba)') {
 									
-			const container = await getOrPickContainer();
-			const wsConfig = vscode.workspace.getConfiguration('kuba');
-		    const pod = wsConfig.get<string>('pod');
-			const ns = wsConfig.get<string>('namespace');		
+			const container = await this.Runner.getOrPickContainer();
+			const wsState = this.Context.workspaceState;
+		    const pod = wsState.get<string>('pod');
+			const ns = wsState.get<string>('namespace');		
 
 			config.pipeTransport.pipeArgs = ['exec', '-i', pod, '-n', ns, '-c', container, '--'];
 		}
@@ -204,3 +223,4 @@ class KubaConfigurationProvider implements vscode.DebugConfigurationProvider {
         }          
     }
 }
+

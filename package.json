@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.1.8",
+	"version": "0.2.0",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -55,6 +55,38 @@
 		},
 		"views": {},
 		"menus": {},
+		"taskDefinitions": [
+			{
+				"type": "tilt",
+				"required": [
+					"task"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "Tilt Up"
+					}
+				}
+			}
+		],
+		"problemPatterns": [
+			{
+				"name": "tilt",
+				"regexp": "^(Error):\\\\s*([^(]+\\\\((.+):(\\\\d+:\\\\d+)\\\\).*)$",
+				"file": 3,
+				"location": 4,
+				"message": 2,
+				"severity": 1
+			}
+		],
+		"problemMatchers": [
+			{
+			  "name": "tilt",
+			  "owner": "tilt",
+			  "fileLocation": "absolute",
+			  "pattern" : "$tilt"
+			}
+		],
 		"configuration": [
 			{
 				"title": "Kuba configuration",
