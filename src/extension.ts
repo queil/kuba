@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { TiltTaskProvider } from './tiltTaskProvider';
+import { KubaTaskProvider } from './kubaTaskProvider';
 import { WorkspaceFolder, DebugConfiguration, CancellationToken } from 'vscode';
 
 export class KubaCommandRunner {
@@ -110,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const runner = new KubaCommandRunner(context);
 	const provider = new KubaConfigurationProvider(context, runner);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
-	context.subscriptions.push(vscode.tasks.registerTaskProvider(TiltTaskProvider.TiltType, new TiltTaskProvider(workspaceRoot)));
+	context.subscriptions.push(vscode.tasks.registerTaskProvider(KubaTaskProvider.KubaType, new KubaTaskProvider(workspaceRoot)));
 	
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickPod', async () => {
 		
@@ -152,7 +152,7 @@ export function activate(context: vscode.ExtensionContext) {
 		kubectl(`config use-context ${item}`);
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('kuba.resetConfig', async () => {	
+	context.subscriptions.push(vscode.commands.registerCommand('kuba.resetSelection', async () => {	
 		updateState("context", undefined);
 		updateState("namespace", undefined);
 		updateState("pod", undefined);

@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -46,8 +46,8 @@
 				"title": "Kuba: Pick Context"
 			},
 			{
-				"command": "kuba.resetConfig",
-				"title": "Kuba: Reset Config"
+				"command": "kuba.resetSelection",
+				"title": "Kuba: Reset selection"
 			}
 		],
 		"viewsContainers": {
@@ -57,14 +57,22 @@
 		"menus": {},
 		"taskDefinitions": [
 			{
-				"type": "tilt",
+				"type": "kuba",
 				"required": [
-					"task"
+					"label", "command"
 				],
 				"properties": {
-					"task": {
+					"label": {
 						"type": "string",
-						"description": "Tilt Up"
+						"description": "Task label"
+					},
+					"command": {
+						"type": "string",
+						"description": "Command to execute"
+					},
+					"args": {
+						"type": "array",
+						"description": "Task type"
 					}
 				}
 			}
@@ -85,29 +93,6 @@
 			  "owner": "tilt",
 			  "fileLocation": "absolute",
 			  "pattern" : "$tilt"
-			}
-		],
-		"configuration": [
-			{
-				"title": "Kuba configuration",
-				"properties": {
-					"kuba.namespace": {
-						"type": "string",
-						"description": "Current namespace"
-					},
-					"kuba.pod": {
-						"type": "string",
-						"description": "Current pod"
-					},
-					"kuba.container": {
-						"type": "string",
-						"description": "Current container"
-					},
-					"kuba.context": {			
-						"type": "string",
-						"description": "Current context"
-					}
-				}
 			}
 		]
 	},
