@@ -101,17 +101,20 @@
 				"kuba.relativeSrcDir": {
 					"default": "src",
 					"type": "string",
-					"description": "Dotnet build input path relative the current workspaceFolder"
+					"description": "Dotnet build input path relative the current workspaceFolder",
+					"scope": "window"
 				},
 				"kuba.relativeBuildOutputDir": {
 					"default": "dev/bin",
 					"type": "string",
-					"description": "Dotnet build output path relative the current workspaceFolder"
+					"description": "Dotnet build output path relative the current workspaceFolder",
+					"scope": "window"
 				},
 				"kuba.relativeTiltfilePath": {
 					"default": "Tiltfile",
 					"type": "string",
-					"description": "Tiltfile path relative the current workspaceFolder"
+					"description": "Tiltfile path relative the current workspaceFolder",
+					"scope": "window"
 				}
 			}
 		}]
