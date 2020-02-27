@@ -58,7 +58,7 @@ async function getKubaTasks(): Promise<vscode.Task[]> {
 		args: ["up", "--file=${workspaceFolder}/Tiltfile", "--hud=false", "--debug=true"]
 	};
 	let tiltExecution = new vscode.ProcessExecution(tiltDef.command, tiltDef.args);
-	let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, 'Tilt Up', 'Kuba', tiltExecution, ["$tilt"]);
+	let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, tiltDef.label, 'Kuba', tiltExecution, ["$tilt"]);
 
 	let buildDef: KubaTaskDefinition = {
 		type: KubaTaskProvider.KubaType,
@@ -71,7 +71,7 @@ async function getKubaTasks(): Promise<vscode.Task[]> {
 	};
 	
 	let buildExecution = new vscode.ProcessExecution(buildDef.command, buildDef.args);
-	let buildTask = new vscode.Task(buildDef, vscode.TaskScope.Workspace, 'Dotnet Build', 'Kuba', buildExecution, ["$msCompile"]);
+	let buildTask = new vscode.Task(buildDef, vscode.TaskScope.Workspace, buildDef.label, 'Kuba', buildExecution, ["$msCompile"]);
 							
 	tiltUpTask.group = 'build';
 	buildTask.group = 'build';
