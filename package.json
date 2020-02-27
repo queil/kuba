@@ -94,7 +94,27 @@
 			  "fileLocation": "absolute",
 			  "pattern" : "$tilt"
 			}
-		]
+		],
+		"configuration":[{
+			"title": "Kuba configuration",
+			"properties": {
+				"kuba.relativeSrcDir": {
+					"default": "src",
+					"type": "string",
+					"description": "Dotnet build input path relative the current workspaceFolder"
+				},
+				"kuba.relativeBuildOutputDir": {
+					"default": "dev/bin",
+					"type": "string",
+					"description": "Dotnet build output path relative the current workspaceFolder"
+				},
+				"kuba.relativeTiltfilePath": {
+					"default": "Tiltfile",
+					"type": "string",
+					"description": "Tiltfile path relative the current workspaceFolder"
+				}
+			}
+		}]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

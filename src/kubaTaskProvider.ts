@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
 
 interface KubaTaskDefinition extends vscode.TaskDefinition {
 	
@@ -11,62 +10,35 @@ interface KubaTaskDefinition extends vscode.TaskDefinition {
 
 export class KubaTaskProvider implements vscode.TaskProvider {
 	static KubaType: string = 'kuba';
-	private Promise: Thenable<vscode.Task[]> | undefined = undefined;
-
-	constructor(workspaceRoot: string) {
-		let pattern = path.join(workspaceRoot, 'Tiltfile');
-		let fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-		fileWatcher.onDidChange(() => this.Promise = undefined);
-		fileWatcher.onDidCreate(() => this.Promise = undefined);
-		fileWatcher.onDidDelete(() => this.Promise = undefined);
-	}
-
-	public provideTasks(): Thenable<vscode.Task[]> | undefined {
-		if (!this.Promise) {
-			this.Promise = getKubaTasks();
-		}
-		return this.Promise;
-	}
-
-	public resolveTask(_task: vscode.Task): vscode.Task | undefined {
-		return undefined;
-	}
-}
-
-function exists(file: string): Promise<boolean> {
-	return new Promise<boolean>((resolve, _reject) => {
-		fs.exists(file, (value) => {
-			resolve(value);
-		});
-	});
+	public provideTasks(): Thenable<vscode.Task[]> | undefined { return getKubaTasks(); }
+	public resolveTask(_task: vscode.Task): vscode.Task | undefined { return undefined; }
 }
 
 async function getKubaTasks(): Promise<vscode.Task[]> {
-	let workspaceRoot = vscode.workspace.rootPath;
-	let emptyTasks: vscode.Task[] = [];
-	if (!workspaceRoot) {
-		return emptyTasks;
-	}
-	let tiltFile = path.join(workspaceRoot, 'Tiltfile');
-	if (!await exists(tiltFile)) {
-		return emptyTasks;
-	}
+	if (!vscode.workspace.rootPath) { return []; }
+
+	const kubaConfig = vscode.workspace.getConfiguration("kuba");
+	const relativeTiltfilePath = kubaConfig.get<string>("relativeTiltfilePath") || "Tiltfile";
+	
 	let tiltDef: KubaTaskDefinition = {
 		type: KubaTaskProvider.KubaType,
 		label: 'tilt-up',
 		command: 'tilt',
-		args: ["up", "--file=${workspaceFolder}/Tiltfile", "--hud=false", "--debug=true"]
+		args: ["up", "--file=" + path.join("${workspaceFolder}", relativeTiltfilePath), "--hud=false", "--debug=true"]
 	};
 	let tiltExecution = new vscode.ProcessExecution(tiltDef.command, tiltDef.args);
 	let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, tiltDef.label, 'Kuba', tiltExecution, ["$tilt"]);
+
+	let relativeSrcDir = kubaConfig.get<string>("relativeSrcDir") || "src";
+	let relativeBuildOutputDir = kubaConfig.get<string>("relativeBuildOutputDir") || "dev/bin";
 
 	let buildDef: KubaTaskDefinition = {
 		type: KubaTaskProvider.KubaType,
 		label: 'dotnet-build',
 		command: 'dotnet',
 		args: [
-			"build", "${workspaceFolder}/src", "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary",
-			"--output", "${workspaceFolder}/dev/bin"
+			"build", path.join("${workspaceFolder}", relativeSrcDir), "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary",
+			"--output", path.join("${workspaceFolder}", relativeBuildOutputDir)
 		]
 	};
 	

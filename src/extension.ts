@@ -110,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const runner = new KubaCommandRunner(context);
 	const provider = new KubaConfigurationProvider(context, runner);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
-	context.subscriptions.push(vscode.tasks.registerTaskProvider(KubaTaskProvider.KubaType, new KubaTaskProvider(workspaceRoot)));
+	context.subscriptions.push(vscode.tasks.registerTaskProvider(KubaTaskProvider.KubaType, new KubaTaskProvider()));
 	
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.pickPod', async () => {
 		
