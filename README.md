@@ -1,8 +1,10 @@
 ![Kuba](/media/kuba.128.png) 
 
-# Kuba
+# Kuba [![Build Status](https://dev.azure.com/queil/kuba/_apis/build/status/queil.kuba?branchName=master)](https://dev.azure.com/queil/kuba/_build/latest?definitionId=1&branchName=master)
 
 Easy Kubernetes Debugging for .NET Core in VS Code.
+
+
 
 # What is Kuba?
 
