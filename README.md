@@ -26,7 +26,6 @@ Kuba's goal is to make both local and remote debugging .NET Core code (C#, F#) i
 
 * make it more configurable
 * add an option to auto-re-attach on after build
-* make Kubernetes picker a step pick list for a better UX
 * add assets generation: a minimal Tiltfile and a minimal Kubernetes deployment
 * move focus back onto the `tilt up` task output after `dotnet build`
 
