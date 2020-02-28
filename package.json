@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -102,6 +102,12 @@
 					"default": "Tiltfile",
 					"type": "string",
 					"description": "Tiltfile path relative the current workspaceFolder",
+					"scope": "window"
+				},
+				"kuba.runTiltUpBeforeAttach": {
+					"default": "true",
+					"type": "boolean",
+					"description": "If true Kuba will run the tilt-up task before debugger attach.",
 					"scope": "window"
 				}
 			}
