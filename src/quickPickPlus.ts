@@ -9,42 +9,51 @@ export interface QuickPickPlusOptions
     autoPickOnSingleItem: boolean;
 }
 
-export async function quickPickPlus(pick:vscode.QuickPick<vscode.QuickPickItem>, options: QuickPickPlusOptions)
-{
-    let handle = new vscode.Disposable(() => {  
+export class QuickPickPlus {
 
-    });
+    private Pick: vscode.QuickPick<vscode.QuickPickItem>;
+    private Options : QuickPickPlusOptions;
+    private Context : vscode.ExtensionContext;
+    constructor(pick:vscode.QuickPick<vscode.QuickPickItem>, 
+                options: QuickPickPlusOptions,
+                context:vscode.ExtensionContext)
+    {
+        this.Pick = pick;
+        this.Options = options;
+        this.Context = context;
+    }
 
-    var promise = await new Promise<string | undefined>(async (resolve, reject) => {
-        try 
-        {
-            pick.show();
-            pick.title = options.title;
-            handle = pick.onDidChangeSelection(selection => {
-                resolve(selection[0].label);
-                pick.items = [];
-                pick.busy = true;
-            });
-            pick.placeholder = options.placeholder;
-            pick.busy = true;
-            pick.step = options.step;		
-            pick.items = (await options.itemsSource()).map(label => ({ label: label }));
-            pick.placeholder = "";
-            pick.busy = false;
+    public show() 
+    {
+        var promise = new Promise<string | undefined>(async (resolve, reject) => {
+            try 
+            {
+                this.Pick.show();
+                this.Pick.title = this.Options.title;
+                this.Context.subscriptions.push(this.Pick.onDidChangeSelection(selection => {
+                    resolve(selection[0].label); 
+                    this.Pick.items = [];
+                    this.Pick.busy = true;             
+                }));
+                this.Pick.placeholder = this.Options.placeholder;
+                this.Pick.busy = true;
+                this.Pick.step = this.Options.step;		
+                this.Pick.items = (await this.Options.itemsSource()).map(label => ({ label: label }));
+                this.Pick.placeholder = "";
+                this.Pick.busy = false;
 
-            if (options.autoPickOnSingleItem && pick.items.length === 1) {
-                pick.placeholder = "Auto-selecting ...";
-                await new Promise( resolve => setTimeout(resolve, 1000) );
-            	pick.selectedItems = [ pick.items[0] ];
+                if (this.Options.autoPickOnSingleItem && this.Pick.items.length === 1) {
+                    this.Pick.placeholder = "Auto-selecting ...";
+                    await new Promise( resolve => setTimeout(resolve, 500) );
+                    this.Pick.selectedItems = [ this.Pick.items[0] ];
+                }
+            } 
+            catch (error) 
+            {
+                console.error(error);
+                reject(undefined);
             }
-        } 
-        catch (error) 
-        {
-            console.error(error);
-            reject(undefined);
-        }
-    });
-
-    handle.dispose();
-    return promise;
+        });
+        return promise;
+    }
 }

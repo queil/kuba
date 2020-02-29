@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import { KubaTaskProvider } from './kubaTaskProvider';
-
-import { quickPickPlus } from './quickPickPlus';
 import { KubaConfigurationProvider } from './kubaConfigurationProvider';
+import { QuickPickPlus } from './quickPickPlus';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -24,9 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
 		return items;
 	}
 
-	async function getContainersInPod(pod:string, ns: string)
+	async function getContainersInPod(pod:string, ns: string, ignoreNotFound:boolean)
 	{
-		const stdout = await kubectl(`get pod ${pod} -n ${ns} -o jsonpath="{.spec.containers[*].name}"`);
+		const stdout = await kubectl(`get pod ${pod} -n ${ns} ${ignoreNotFound ? "--ignore-not-found" : ""} -o jsonpath="{.spec.containers[*].name}"`);
 		return stdout.split("\n");
 	}
 
@@ -42,8 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	async function getResource(key: string, getter: () => Promise<string|undefined>) 
 	{
-		let value = get(key);
-		if (!value) { value = await getter(); } 
+		let value = await getter(); 
 		if (!value) {
 			console.error(`Could not get Kubernetes ${key}`);
 			return "";
@@ -61,19 +59,41 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let workspaceRoot = vscode.workspace.rootPath;
 	if (!workspaceRoot) { return; }
-
-	const provider = new KubaConfigurationProvider(context);
+	const taskProvider = new KubaTaskProvider();
+	const provider = new KubaConfigurationProvider(context, taskProvider);
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
-	context.subscriptions.push(vscode.tasks.registerTaskProvider(KubaTaskProvider.KubaType, new KubaTaskProvider()));
+	context.subscriptions.push(vscode.tasks.registerTaskProvider(KubaTaskProvider.KubaType, taskProvider));
+
+	context.subscriptions.push(vscode.tasks.onDidEndTask(async t => {
+
+		const task = t.execution.task;
+		if (task.definition.type !== KubaTaskProvider.KubaType) { return; }
+		if (vscode.debug.activeDebugSession && task.name === KubaTaskProvider.DotnetBuild && taskProvider.isTaskRunning('tilt-up'))
+		{
+			const timeout = new Promise<boolean>((resolve, _) => { setTimeout(() => resolve(false), 10000); });
+			const debugSessionTerminated = new Promise<boolean>(async (resolve,reject) => {
+
+				let handle = vscode.debug.onDidTerminateDebugSession(s => {
+					resolve(s.configuration.name === KubaConfigurationProvider.ConfigName);
+					handle?.dispose();
+				});
+			});
+			taskProvider.focusOn('tilt-up');
+			const shouldReattach = await Promise.race([timeout, debugSessionTerminated]);
+			if (shouldReattach) { await vscode.commands.executeCommand('workbench.action.debug.start'); }
+		}
+	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.attachTo', async () => {
 
 		const container = get("container");
 		const pod = get("pod");
 		const namespace = get("namespace");
 
-		const invalidateCache = container && pod && namespace ? !(await getContainersInPod(pod, namespace)).includes(container) : true; 
-		if (!invalidateCache) { return; }
-		
+		const isCacheValid = container && pod && namespace && (await getContainersInPod(pod, namespace, true)).some(x => x === container);
+
+		if (isCacheValid) {return;}
+
 		const pick = vscode.window.createQuickPick();
 
 		try {
@@ -83,42 +103,42 @@ export function activate(context: vscode.ExtensionContext) {
 			const placeholder = "Loading ...";
 
 			await getResource("context", 
-				() => quickPickPlus(pick, { 
+				() => new QuickPickPlus(pick, { 
 					step: 1,
 					title: "Pick Context",
 					placeholder: placeholder, 
 					itemsSource: () => kubectlGet("config get-contexts"),
 					autoPickOnSingleItem: true
-					}));
+					},context).show());
 
 			const namespace = 
 				await getResource("namespace", 
-					() => quickPickPlus(pick, { 
+					() => new QuickPickPlus(pick, { 
 						step: 2,
 						title: "Pick Namespace",
 						placeholder: placeholder,
 						itemsSource: () => kubectlGet("get namespaces"),
 						autoPickOnSingleItem: true
-					}));
+					},context).show());
 
 			const pod = 
 				await getResource("pod", 
-				    () => quickPickPlus(pick, { 
+				    () => new QuickPickPlus(pick, { 
 						step: 3,
 						title: "Pick Pod",
 						placeholder: placeholder,
 						itemsSource: () => kubectlGet(`get pod -n ${namespace}`),
 						autoPickOnSingleItem: true
-					}));
+					},context).show());
 
 				await getResource("container",
-					() => quickPickPlus(pick, { 
+					() => new QuickPickPlus(pick, { 
 						step: 4,
 						title: "Pick container",
 						placeholder: placeholder,
-						itemsSource: () => getContainersInPod(pod, namespace),
+						itemsSource: () => getContainersInPod(pod, namespace, false),
 						autoPickOnSingleItem: true
-					}));	
+					},context).show());	
 		} 
 		finally 
 		{
@@ -127,10 +147,10 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('kuba.resetSelection', async () => {	
-		update("context", undefined);
-		update("namespace", undefined);
-		update("pod", undefined);
-		update("container", undefined);
+		await update("context", undefined);
+	    await update("namespace", undefined);
+		await update("pod", undefined);
+		await update("container", undefined);
 	}));
 }
 

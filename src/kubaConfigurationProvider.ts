@@ -1,25 +1,23 @@
 import { WorkspaceFolder, DebugConfiguration, CancellationToken } from 'vscode';
 import * as vscode from 'vscode';
+import { KubaTaskProvider } from './kubaTaskProvider';
 
 export class KubaConfigurationProvider implements vscode.DebugConfigurationProvider {
-
+	static ConfigName = '.NET Core Attach to K8s (Kuba)'; 
 	private Context: vscode.ExtensionContext;
-	constructor(context: vscode.ExtensionContext) {
+	private TaskProvider: KubaTaskProvider;
+	constructor(context: vscode.ExtensionContext, taskProvider: KubaTaskProvider ) {
 		this.Context = context;
+		this.TaskProvider = taskProvider;
 	}
 
 	async resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: CancellationToken): Promise<vscode.DebugConfiguration | undefined> {
 
-		if (config.name === '.NET Core Attach to K8s (Kuba)') {
+		if (config.name ===  KubaConfigurationProvider.ConfigName) {
 					
 			if (vscode.workspace.getConfiguration('kuba').get<boolean>("runTiltUpBeforeAttach"))
 			{
-				const kubaTasks = await vscode.tasks.fetchTasks({type:'kuba'});
-				const tiltUp = kubaTasks.find(t => t.name === 'tilt-up');
-				if (tiltUp && !vscode.tasks.taskExecutions.find(t => t.task.name === 'tilt-up')) 
-				{ 
-					await vscode.tasks.executeTask(tiltUp);
-				}		
+				await this.TaskProvider.runTiltUp();
 			}
 
 			await vscode.commands.executeCommand("kuba.attachTo");
