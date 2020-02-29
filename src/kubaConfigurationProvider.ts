@@ -1,6 +1,7 @@
 import { WorkspaceFolder, DebugConfiguration, CancellationToken } from 'vscode';
 import * as vscode from 'vscode';
 import { KubaTaskProvider } from './kubaTaskProvider';
+import { wsCfg } from './config';
 
 export class KubaConfigurationProvider implements vscode.DebugConfigurationProvider {
 	static ConfigName = '.NET Core Attach to K8s (Kuba)'; 
@@ -15,7 +16,7 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 
 		if (config.name ===  KubaConfigurationProvider.ConfigName) {
 					
-			if (vscode.workspace.getConfiguration('kuba').get<boolean>("runTiltUpBeforeAttach"))
+			if (wsCfg<boolean>("runTiltUpBeforeAttach"))
 			{
 				await this.TaskProvider.runTiltUp();
 			}
@@ -42,7 +43,7 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 			    'request' : 'attach'
 			};
 			
-			config.processId = "${command:pickRemoteProcess}";
+			config.processId = wsCfg<boolean>("useDefaultRemoteProcessId") ? wsCfg<number>("defaultRemoteProcessId") : "${command:pickProcess}" ;
 			config.justMyCode = true; 
 			config.pipeTransport = 
                 {

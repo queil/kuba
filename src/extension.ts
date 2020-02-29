@@ -71,12 +71,11 @@ export function activate(context: vscode.ExtensionContext) {
 		if (vscode.debug.activeDebugSession && task.name === KubaTaskProvider.DotnetBuild && taskProvider.isTaskRunning('tilt-up'))
 		{
 			const timeout = new Promise<boolean>((resolve, _) => { setTimeout(() => resolve(false), 10000); });
-			const debugSessionTerminated = new Promise<boolean>(async (resolve,reject) => {
+			const debugSessionTerminated = new Promise<boolean>(async (resolve, _) => {
 
-				let handle = vscode.debug.onDidTerminateDebugSession(s => {
+				context.subscriptions.push(vscode.debug.onDidTerminateDebugSession(s => {
 					resolve(s.configuration.name === KubaConfigurationProvider.ConfigName);
-					handle?.dispose();
-				});
+				}));
 			});
 			taskProvider.focusOn('tilt-up');
 			const shouldReattach = await Promise.race([timeout, debugSessionTerminated]);

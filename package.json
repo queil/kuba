@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -108,6 +108,18 @@
 					"default": "true",
 					"type": "boolean",
 					"description": "If true Kuba will run the tilt-up task before debugger attach.",
+					"scope": "window"
+				},
+				"kuba.useDefaultRemoteProcessId": {
+					"default": "true",
+					"type": "boolean",
+					"description": "If true C# debugger will auto-select the 'defaultRemoteProcessId' to attach to",
+					"scope": "window"
+				},
+				"kuba.defaultRemoteProcessId": {
+					"default": "1",
+					"type": "number",
+					"description": "",
 					"scope": "window"
 				}
 			}
