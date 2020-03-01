@@ -14,7 +14,7 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 
 	async resolveDebugConfiguration(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: CancellationToken): Promise<vscode.DebugConfiguration | undefined> {
 
-		if (config.name ===  KubaConfigurationProvider.ConfigName) {
+		if (config.name === KubaConfigurationProvider.ConfigName) {
 					
 			if (wsCfg<boolean>("debug.runTiltUpBeforeAttach"))
 			{

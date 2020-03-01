@@ -47,7 +47,8 @@
 			{
 				"type": "kuba",
 				"required": [
-					"label", "command"
+					"label",
+					"command"
 				],
 				"properties": {
 					"label": {
@@ -77,48 +78,55 @@
 		],
 		"problemMatchers": [
 			{
-			  "name": "tilt",
-			  "owner": "tilt",
-			  "fileLocation": "absolute",
-			  "pattern" : "$tilt"
+				"name": "tilt",
+				"owner": "tilt",
+				"fileLocation": "absolute",
+				"pattern": "$tilt"
 			}
 		],
-		"configuration":[{
-			"title": "Kuba configuration",
-			"properties": {
-				
-				"kuba.build.relativeSrcDir": {
-					"default": "src",
-					"type": "string",
-					"description": "Build input path relative the current workspaceFolder",
-					"scope": "window"
-				},
-				"kuba.build.relativeBuildOutputDir": {
-					"default": "dev/bin",
-					"type": "string",
-					"description": "Build output path relative the current workspaceFolder",
-					"scope": "window"
-				},
-				"kuba.build.relativeTiltfilePath": {
-					"default": "Tiltfile",
-					"type": "string",
-					"description": "Tiltfile path relative the current workspaceFolder",
-					"scope": "window"
-				},
-				"kuba.debug.runTiltUpBeforeAttach": {
-					"default": "true",
-					"type": "boolean",
-					"description": "If true Kuba will run the tilt-up task before debugger attach.",
-					"scope": "window"
-				},
-				"kuba.debug.defaultRemoteProcessId": {
-					"default": "1",
-					"type": "number",
-					"description": "If greater from 0 then C# debugger will auto-select it on attach.",
-					"scope": "window"
+		"configuration": [
+			{
+				"title": "Kuba configuration",
+				"properties": {
+					"kuba.build.relativeSrcDir": {
+						"default": "src",
+						"type": "string",
+						"description": "Build input path relative the current workspaceFolder",
+						"scope": "window"
+					},
+					"kuba.build.relativeBuildOutputDir": {
+						"default": "dev/bin",
+						"type": "string",
+						"description": "Build output path relative the current workspaceFolder",
+						"scope": "window"
+					},
+					"kuba.build.relativeTiltfilePath": {
+						"default": "Tiltfile",
+						"type": "string",
+						"description": "Tiltfile path relative the current workspaceFolder",
+						"scope": "window"
+					},
+					"kuba.debug.runTiltUpBeforeAttach": {
+						"default": "true",
+						"type": "boolean",
+						"description": "If true Kuba will run the tilt-up task before debugger attach.",
+						"scope": "window"
+					},
+					"kuba.debug.tiltUpStartTimeoutMs": {
+						"default": "30000",
+						"type": "number",
+						"description": "Tilt start up timeout milliseconds.",
+						"scope": "window"
+					},
+					"kuba.debug.defaultRemoteProcessId": {
+						"default": "1",
+						"type": "number",
+						"description": "If greater from 0 then C# debugger will auto-select it on attach.",
+						"scope": "window"
+					}
 				}
 			}
-		}]
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -133,8 +141,10 @@
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^10.12.21",
 		"@types/utf8": "^2.1.6",
+		"lazy": "^1.0.11",
 		"tslint": "^5.12.1",
 		"typescript": "^3.3.1",
+		"unique-filename": "^1.1.1",
 		"vscode": "^1.1.28"
 	}
 }
