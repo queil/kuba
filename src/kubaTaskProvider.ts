@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { wsCfg } from './config';
 
 interface KubaTaskDefinition extends vscode.TaskDefinition {
 	
@@ -49,8 +50,7 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 	private async getKubaTasks(): Promise<vscode.Task[]> {
 		if (!vscode.workspace.rootPath) { return []; }
 	
-		const kubaConfig = vscode.workspace.getConfiguration("kuba");
-		const relativeTiltfilePath = kubaConfig.get<string>("relativeTiltfilePath") || "Tiltfile";
+		const relativeTiltfilePath = wsCfg<string>("build.relativeTiltfilePath") || "Tiltfile";
 		
 		let tiltDef: KubaTaskDefinition = {
 			type: KubaTaskProvider.KubaType,
@@ -61,8 +61,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 		let tiltExecution = new vscode.ProcessExecution(tiltDef.command, tiltDef.args);
 		let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, tiltDef.label, 'Kuba', tiltExecution, ["$tilt"]);
 	
-		let relativeSrcDir = kubaConfig.get<string>("relativeSrcDir") || "src";
-		let relativeBuildOutputDir = kubaConfig.get<string>("relativeBuildOutputDir") || "dev/bin";
+		let relativeSrcDir = wsCfg<string>("build.relativeSrcDir") || "src";
+		let relativeBuildOutputDir = wsCfg<string>("build.relativeBuildOutputDir") || "dev/bin";
 	
 		let buildDef: KubaTaskDefinition = {
 			type: KubaTaskProvider.KubaType,

@@ -16,9 +16,10 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 
 		if (config.name ===  KubaConfigurationProvider.ConfigName) {
 					
-			if (wsCfg<boolean>("runTiltUpBeforeAttach"))
+			if (wsCfg<boolean>("debug.runTiltUpBeforeAttach"))
 			{
 				await this.TaskProvider.runTiltUp();
+				//somehow wait here until tilt up is ready (i.e. repushed image, forwared ports, this may require teeing and parsing tilt logs)
 			}
 
 			await vscode.commands.executeCommand("kuba.attachTo");
@@ -43,7 +44,8 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 			    'request' : 'attach'
 			};
 			
-			config.processId = wsCfg<number>("defaultRemoteProcessId") ?? "${command:pickProcess}" ;
+			const defaultProcessId = wsCfg<number>("debug.defaultRemoteProcessId");
+			config.processId =  defaultProcessId && defaultProcessId > 0 ? defaultProcessId : "${command:pickProcess}" ;
 			config.justMyCode = true; 
 			config.pipeTransport = 
                 {

@@ -86,34 +86,35 @@
 		"configuration":[{
 			"title": "Kuba configuration",
 			"properties": {
-				"kuba.relativeSrcDir": {
+				
+				"kuba.build.relativeSrcDir": {
 					"default": "src",
 					"type": "string",
-					"description": "Dotnet build input path relative the current workspaceFolder",
+					"description": "Build input path relative the current workspaceFolder",
 					"scope": "window"
 				},
-				"kuba.relativeBuildOutputDir": {
+				"kuba.build.relativeBuildOutputDir": {
 					"default": "dev/bin",
 					"type": "string",
-					"description": "Dotnet build output path relative the current workspaceFolder",
+					"description": "Build output path relative the current workspaceFolder",
 					"scope": "window"
 				},
-				"kuba.relativeTiltfilePath": {
+				"kuba.build.relativeTiltfilePath": {
 					"default": "Tiltfile",
 					"type": "string",
 					"description": "Tiltfile path relative the current workspaceFolder",
 					"scope": "window"
 				},
-				"kuba.runTiltUpBeforeAttach": {
+				"kuba.debug.runTiltUpBeforeAttach": {
 					"default": "true",
 					"type": "boolean",
 					"description": "If true Kuba will run the tilt-up task before debugger attach.",
 					"scope": "window"
 				},
-				"kuba.defaultRemoteProcessId": {
+				"kuba.debug.defaultRemoteProcessId": {
 					"default": "1",
-					"type": "number | null",
-					"description": "If set C# debugger will auto-select it on attach.",
+					"type": "number",
+					"description": "If greater from 0 then C# debugger will auto-select it on attach.",
 					"scope": "window"
 				}
 			}
