@@ -2,32 +2,9 @@ import * as vscode from 'vscode';
 import { KubaTaskProvider } from './kubaTaskProvider';
 import { KubaConfigurationProvider } from './kubaConfigurationProvider';
 import { QuickPickPlus } from './quickPickPlus';
+import { Kubectl } from './kubectl';
 
 export function activate(context: vscode.ExtensionContext) {
-
-	async function kubectl(argsString: string):Promise<string> {
-		const util = require('util');
-		const exec = util.promisify(require('child_process').exec);
-		const { stdout, stderr } = await exec(`kubectl ${argsString}`);
-		if (stderr) { 
-			vscode.window.showErrorMessage(stderr); 
-			return "Error";
-		}
-		return stdout.trim();
-	}
-
-	async function kubectlGet(argsString: string)
-	{
-		const stdout = await kubectl(`${argsString} -o name`);
-		const items = stdout.split("\n").flatMap((s:string) => s.split('/').slice(-1)[0]);
-		return items;
-	}
-
-	async function getContainersInPod(pod:string, ns: string, ignoreNotFound:boolean)
-	{
-		const stdout = await kubectl(`get pod ${pod} -n ${ns} ${ignoreNotFound ? "--ignore-not-found" : ""} -o jsonpath="{.spec.containers[*].name}"`);
-		return stdout.split("\n");
-	}
 
 	async function update(key:string, value:string | undefined)
 	{
@@ -61,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 	if (!workspaceRoot) { return; }
 	const taskProvider = new KubaTaskProvider();
 	const provider = new KubaConfigurationProvider(context, taskProvider);
+	const kubectl = new Kubectl(stderr => vscode.window.showErrorMessage(stderr));
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
 	context.subscriptions.push(vscode.tasks.registerTaskProvider(KubaTaskProvider.KubaType, taskProvider));
 
@@ -89,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const pod = get("pod");
 		const namespace = get("namespace");
 
-		const isCacheValid = container && pod && namespace && (await getContainersInPod(pod, namespace, true)).some(x => x === container);
+		const isCacheValid = container && pod && namespace && (await kubectl.getContainersInPod(pod, namespace, true)).some(x => x === container);
 
 		if (isCacheValid) {return;}
 
@@ -106,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
 					step: 1,
 					title: "Pick Context",
 					placeholder: placeholder, 
-					itemsSource: () => kubectlGet("config get-contexts"),
+					itemsSource: () => kubectl.get("config get-contexts"),
 					autoPickOnSingleItem: true
 					},context).show());
 
@@ -116,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
 						step: 2,
 						title: "Pick Namespace",
 						placeholder: placeholder,
-						itemsSource: () => kubectlGet("get namespaces"),
+						itemsSource: () => kubectl.get("get namespaces"),
 						autoPickOnSingleItem: true
 					},context).show());
 
@@ -126,7 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
 						step: 3,
 						title: "Pick Pod",
 						placeholder: placeholder,
-						itemsSource: () => kubectlGet(`get pod -n ${namespace}`),
+						itemsSource: () => kubectl.get(`get pod -n ${namespace}`),
 						autoPickOnSingleItem: true
 					},context).show());
 
@@ -135,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
 						step: 4,
 						title: "Pick container",
 						placeholder: placeholder,
-						itemsSource: () => getContainersInPod(pod, namespace, false),
+						itemsSource: () => kubectl.getContainersInPod(pod, namespace, false),
 						autoPickOnSingleItem: true
 					},context).show());	
 		} 

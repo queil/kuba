@@ -43,7 +43,7 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 			    'request' : 'attach'
 			};
 			
-			config.processId = wsCfg<boolean>("useDefaultRemoteProcessId") ? wsCfg<number>("defaultRemoteProcessId") : "${command:pickProcess}" ;
+			config.processId = wsCfg<number>("defaultRemoteProcessId") ?? "${command:pickProcess}" ;
 			config.justMyCode = true; 
 			config.pipeTransport = 
                 {
