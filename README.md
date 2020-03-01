@@ -22,13 +22,6 @@ Kuba's goal is to make both local and remote debugging .NET Core code (C#, F#) i
 * It respects the `kubectl` context and updates it if it changes externally
 * It does not require the Microsoft's VS Code Kubernetes extension
 
-# To do
-
-* make it more configurable
-* add an option to auto-re-attach on after build
-* add assets generation: a minimal Tiltfile and a minimal Kubernetes deployment
-* move focus back onto the `tilt up` task output after `dotnet build`
-
 # Requirements
 
 * [VS Code](https://code.visualstudio.com/)
