@@ -4,7 +4,6 @@ import { KubaConfigurationProvider } from './kubaConfigurationProvider';
 import { QuickPickPlus } from './quickPickPlus';
 import { Kubectl } from './kubectl';
 import { KubaWsState } from './config';
-import { FSWatcher } from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -17,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let workspaceRoot = vscode.workspace.rootPath;
 	if (!workspaceRoot) { return; }
 	const wsState = new KubaWsState(context);
-	const taskProvider = new KubaTaskProvider(wsState);
+	const taskProvider = new KubaTaskProvider();
 	const provider = new KubaConfigurationProvider(context, taskProvider);
 	const kubectl = new Kubectl(stderr => vscode.window.showErrorMessage(stderr));
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
@@ -28,10 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 		const task = t.execution.task;
 		if (task.definition.type !== KubaTaskProvider.KubaType) { return; }
 
-		if (task.name === KubaTaskProvider.TiltUp) 
-		{
-			await taskProvider.onTiltExited();
-		}
+		if (task.name === KubaTaskProvider.TiltUp) { await taskProvider.onTiltExited(); }
 
 		if (vscode.debug.activeDebugSession && task.name === KubaTaskProvider.DotnetBuild && taskProvider.isTaskRunning('tilt-up'))
 		{

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
-import { wsCfg, KubaWsState } from './config';
+import { wsCfg } from './config';
 
 const uniqueFilename = require('unique-filename');
 const lazy = require('lazy');
@@ -21,16 +21,11 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 	static KubaType: string = 'kuba';
 	static TiltUp: string = 'tilt-up';
 	static DotnetBuild: string = 'dotnet-build';
-	private WsState: KubaWsState;
 	private TiltOutDirWatcher: fs.FSWatcher | undefined;
 	private TiltOutDir : string = path.join(os.tmpdir(), "tilt");
 	private TiltOutFileWatcher: fs.FSWatcher | undefined;
-	private TiltOutFile : string = uniqueFilename(this.TiltOutDir, "tilt");
-	
-	constructor(context: KubaWsState)
-	{
-		this.WsState = context;
-	}
+	private TiltOutFileFullName : string = uniqueFilename(this.TiltOutDir, "tilt");
+	private TiltOutFileName : string = path.basename(this.TiltOutFileFullName);
 
 	public provideTasks(): Thenable<vscode.Task[]> | undefined { return this.getKubaTasks(); }
 	public async resolveTask(_task: vscode.Task): Promise<vscode.Task | undefined> { return undefined; }
@@ -51,12 +46,11 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 			} catch (r) {
 				console.log(r);
 			}
-			if (!this.TiltOutFile) { return; }
+			if (!this.TiltOutFileFullName) { return; }
 
 			 if (await this.assertTiltIsUp()) {
-
-				await this.assertTiltIsForwarding();
-				
+				const forwardingLine = await this.assertTiltIsForwarding();
+				//capture url and run browser (if configured)
 			 }
 		}	
 	}
@@ -64,14 +58,15 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 	private assertTiltIsForwarding()
 	{
 		return new Promise<string>((resolve,_) => {
-		var tiltOutStream = fs.createReadStream(this.TiltOutFile);
+		// this does not work well - might read the file before tilt has put the output there
+		// rather we should react on every change event and read the bits not read so far.
+		var tiltOutStream = fs.createReadStream(this.TiltOutFileFullName);
 		new lazy(tiltOutStream).lines.forEach((buffer:Buffer) => {
 
 				const line = buffer.toString('utf8');
-				const match = line.match(".*Forwarding from (\d+\.\d+\.\d+\.\d+:\d+) ->.*");
 				
-				if (match) {
-					return resolve(match[1]);
+				if (line.indexOf("Forwarding") > -1) {
+					return resolve(line);
 				}
 			});
 		});
@@ -82,7 +77,9 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 		var tiltStarted = new Promise<boolean>((resolve, _) => {
 			
 			this.TiltOutDirWatcher = fs.watch(this.TiltOutDir, (event, name) => {
-				resolve(true);
+				if (event === 'change' && name === this.TiltOutFileName) {
+					resolve(true);
+				}
 			});
 		});
 
@@ -97,8 +94,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 	public async onTiltExited() {
 		
 		if (this.TiltOutFileWatcher) {this.TiltOutFileWatcher.close();}
-		if (this.TiltOutFile) {
-			fs.unlink(this.TiltOutFile, (err) => {
+		if (this.TiltOutFileFullName) {
+			fs.unlink(this.TiltOutFileFullName, (err) => {
 				if (err) { vscode.window.showErrorMessage(`${err}`); }
 			});
 		}		
@@ -115,11 +112,6 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 		if (terminal) { terminal.show(); }
 	}
 
-	private fetchExecution(task:KubaTaskName)
-	{
-		return vscode.tasks.taskExecutions.find(t => t.task.definition.type === KubaTaskProvider.KubaType && t.task.name === task);
-	}
-
 	private async fetchTask(task: KubaTaskName)
 	{
 		const kubaTasks = await vscode.tasks.fetchTasks({type:KubaTaskProvider.KubaType});
@@ -134,7 +126,7 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 			type: KubaTaskProvider.KubaType,
 			label: KubaTaskProvider.TiltUp,
 			command: 'tilt',
-			args: ["up", "--file=" + path.join("${workspaceFolder}", relativeTiltfilePath), "--hud=false", "--debug=true", "|", "tee", `"${this.TiltOutFile}"`]
+			args: ["up", "--file=" + path.join("${workspaceFolder}", relativeTiltfilePath), "--hud=false", "--debug=true", "|", "tee", `"${this.TiltOutFileFullName}"`]
 		};
 		let tiltExecution = new vscode.ShellExecution(tiltDef.command, tiltDef.args);
 		let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, tiltDef.label, 'Kuba', tiltExecution, ["$tilt"]);
@@ -161,6 +153,3 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 	}
 	
 }
-
-
-
