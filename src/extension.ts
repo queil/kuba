@@ -6,6 +6,7 @@ import { Kubectl } from './kubectl';
 import { KubaWsState, setWsCfg } from './config';
 import * as path from 'path';
 import { InputBoxPlus } from './inputBoxPlus';
+import { generateAssets } from './assetsGenerator';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -71,43 +72,32 @@ export function activate(context: vscode.ExtensionContext) {
 
             await vscode.commands.executeCommand('kuba.resetSelection');
             let step = 1;
-
-            const dockerfileDir = await new InputBoxPlus(inputBox, { 
-                step: step++,
-                title: "Configure: Dockerfile dir",
-                defaultValue: "src",
-                buttons: [browseButton]
-                
-            },context).show();
-
-            await setWsCfg('build.relativeDockerfileDir', dockerfileDir);
-
-            await setWsCfg('build.relativeDockerBuildContextDir', 
-                await new InputBoxPlus(inputBox, { 
-                    step: step++,
-                    title: "Configure: Docker build context dir",
-                    defaultValue: dockerfileDir,
-                    buttons: [browseButton]
-                    
-                },context).show()); 
-
-            await setWsCfg('build.relativeSrcDir', 
+            
+            await setWsCfg('build.srcDir', 
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Source code dir",
-                    defaultValue: dockerfileDir,
+                    defaultValue: 'src',
                     buttons: [browseButton] 
                 },context).show()); 
 
-            await setWsCfg('build.relativeBuildOutputDir', 
+            await setWsCfg('build.outputDir', 
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Build output dir",
                     defaultValue: "dev/bin",
                     buttons: [browseButton] 
                 },context).show()); 
-            
-            await setWsCfg('build.relativeTiltfilePath', 
+
+            await setWsCfg('docker.buildContextDir', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Docker build context dir",
+                    defaultValue: 'dev',
+                    buttons: [browseButton]
+                },context).show()); 
+
+            await setWsCfg('tilt.tiltfilePath', 
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Tiltfile path",
@@ -115,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
                     buttons: [browseButton] 
                 },context).show()); 
             
-            
+            await generateAssets();
 		}
 		catch (err) 
 		{
