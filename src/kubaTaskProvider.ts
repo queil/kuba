@@ -58,7 +58,6 @@ export class KubaTaskProvider implements vscode.TaskProvider {
             } catch (r) {
                 console.log(r);
             }
-            
         }	
     }
 
