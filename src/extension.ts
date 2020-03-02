@@ -3,7 +3,9 @@ import { KubaTaskProvider } from './kubaTaskProvider';
 import { KubaConfigurationProvider } from './kubaConfigurationProvider';
 import { QuickPickPlus } from './quickPickPlus';
 import { Kubectl } from './kubectl';
-import { KubaWsState } from './config';
+import { KubaWsState, setWsCfg } from './config';
+import * as path from 'path';
+import { InputBoxPlus } from './inputBoxPlus';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -41,6 +43,83 @@ export function activate(context: vscode.ExtensionContext) {
 			taskProvider.focusOn('tilt-up');
 			const shouldReattach = await Promise.race([timeout, debugSessionTerminated]);
 			if (shouldReattach) { await vscode.commands.executeCommand('workbench.action.debug.start'); }
+		}
+	}));
+
+
+	context.subscriptions.push(vscode.commands.registerCommand('kuba.init', async () => {
+
+		if (!vscode.workspace.workspaceFolders) {
+			vscode.window.showErrorMessage("No folders found. Load a workspace first");
+			return;
+		}
+
+		const inputBox = vscode.window.createInputBox();
+		inputBox.totalSteps = 5;
+		inputBox.ignoreFocusOut = true;	
+
+        const wsRoot = vscode.workspace.workspaceFolders[0].uri;
+        const pickRelativeFolder = async () => {
+            var uris = await vscode.window.showOpenDialog({ defaultUri: wsRoot, canSelectFiles:false, canSelectFolders:true, canSelectMany: false});
+            if (!uris) { throw new Error("Folder not selected!"); }
+            return path.relative(wsRoot.fsPath, uris[0].fsPath);
+        };
+
+        const browseButton = { iconPath: vscode.ThemeIcon.Folder, tooltip: "Browse", getValue: pickRelativeFolder };
+
+        try {
+
+            await vscode.commands.executeCommand('kuba.resetSelection');
+            let step = 1;
+
+            const dockerfileDir = await new InputBoxPlus(inputBox, { 
+                step: step++,
+                title: "Configure: Dockerfile dir",
+                defaultValue: "src",
+                buttons: [browseButton]
+                
+            },context).show();
+
+            await setWsCfg('build.relativeDockerfileDir', dockerfileDir);
+
+            await setWsCfg('build.relativeDockerBuildContextDir', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Docker build context dir",
+                    defaultValue: dockerfileDir,
+                    buttons: [browseButton]
+                    
+                },context).show()); 
+
+            await setWsCfg('build.relativeSrcDir', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Source code dir",
+                    defaultValue: dockerfileDir,
+                    buttons: [browseButton] 
+                },context).show()); 
+
+            await setWsCfg('build.relativeBuildOutputDir', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Build output dir",
+                    defaultValue: "dev/bin",
+                    buttons: [browseButton] 
+                },context).show()); 
+            
+            await setWsCfg('build.relativeTiltfilePath', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Tiltfile path",
+                    defaultValue: "Tiltfile",
+                    buttons: [browseButton] 
+                },context).show()); 
+            
+            
+		}
+		catch (err) 
+		{
+			vscode.window.showErrorMessage(err);
 		}
 	}));
 

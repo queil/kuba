@@ -1,18 +1,32 @@
 import * as vscode from 'vscode';
 
-export type KubaConfigKey = 'build.relativeSrcDir' | 'build.relativeBuildOutputDir' | 'build.relativeTiltfilePath' |
-                            'debug.runTiltUpBeforeAttach' | 'debug.defaultRemoteProcessId';
+export type KubaConfigKey = 
+    // build section
+    | 'build.relativeSrcDir' 
+    | 'build.relativeBuildOutputDir' 
+    | 'build.relativeTiltfilePath' 
+    | 'build.relativeDockerfileDir'
+    | 'build.relativeDockerBuildContextDir'
+    // debug section
+    | 'debug.runTiltUpBeforeAttach' 
+    | 'debug.defaultRemoteProcessId';
 
 export type KubaStateKey = 'context' | 'namespace' | 'pod' | 'container' | 'tiltOutFile';
 
+const CfgRoot = 'kuba';
+
 export function wsCfg<T>(key: KubaConfigKey) {
-    const cfgRoot = 'kuba';
-    var value = vscode.workspace.getConfiguration(cfgRoot).get<T>(key);
+
+    var value = vscode.workspace.getConfiguration(CfgRoot).get<T>(key);
     if (!value) {
-        vscode.window.showErrorMessage(`No value set for the ${cfgRoot}.${key} setting.`);
-        throw Error(`No value set for the ${cfgRoot}.${key} setting.`); 
+        vscode.window.showErrorMessage(`No value set for the ${CfgRoot}.${key} setting.`);
+        throw Error(`No value set for the ${CfgRoot}.${key} setting.`); 
     }
     return value;
+}
+
+export async function setWsCfg<T>(key: KubaConfigKey, value:T) {
+    await vscode.workspace.getConfiguration(CfgRoot).update(key, value);
 }
 
 export class KubaWsState {
