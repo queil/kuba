@@ -46,11 +46,30 @@ export class KubaTaskProvider implements vscode.TaskProvider {
                 let tiltReady = false;
                 while (this.isTaskRunning('tilt-up') && !tiltReady)
                 {
-                   await this.waitForTiltOutput();
+                    await this.waitForTiltOutput();
                   
-                   logReader.Stream(ln => { 
-                     if (ln.indexOf("Forwarding") > -1) { tiltReady = true; }
-                   });
+                    await logReader.Stream(async chunk => { 
+                        if (chunk.indexOf("Forwarding") > -1 && !tiltReady) { 
+                            
+                            const match = /^.* Forwarding from (127.0.0.1:.*) -> .*$/gm.exec(chunk);
+                            if (match) {
+
+                                const uri = vscode.Uri.parse(`http://${match[1]}`); 
+                                const launchBroswer = "Launch browser";
+                                tiltReady = true; 
+                                await vscode.window.showInformationMessage(`Kuba: The app is up at ${uri}`, launchBroswer).then(async msg => {
+                                    if (msg === launchBroswer)
+                                    {
+                                        await vscode.env.openExternal(uri);
+                                    }
+                                });
+                            } 
+                            else 
+                            {
+                                console.log(`Skipped tilt forwarding info: ${chunk}`);
+                            }
+                        }
+                    });
                 }
 
                 if (!this.TiltOutFileFullName) { return; }
