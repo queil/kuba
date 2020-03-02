@@ -1,5 +1,6 @@
 import { WorkspaceFolder, DebugConfiguration, CancellationToken } from 'vscode';
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { KubaTaskProvider } from './kubaTaskProvider';
 import { wsCfg } from './config';
 
@@ -16,10 +17,9 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 
 		if (config.name === KubaConfigurationProvider.ConfigName) {
 					
-			if (wsCfg<boolean>("debug.runTiltUpBeforeAttach"))
+			if (wsCfg<boolean>("tilt.upBeforeAttach"))
 			{
 				await this.TaskProvider.runTiltUp();
-				//somehow wait here until tilt up is ready (i.e. repushed image, forwared ports, this may require teeing and parsing tilt logs)
 			}
 
 			await vscode.commands.executeCommand("kuba.attachTo");
@@ -56,14 +56,15 @@ export class KubaConfigurationProvider implements vscode.DebugConfigurationProvi
 					"quoteArgs": false
 			    };
 				
-				config.sourceFileMap = 
-				{
-					"/src": "${workspaceFolder}/src",
-					"/app": "${workspaceFolder}/src"
-				};
+				const appTargetPath = wsCfg<string>('docker.appTargetDir');
+				const srcPath = wsCfg<string>('build.srcDir');
+
+				config.sourceFileMap = {};
+				config.sourceFileMap[appTargetPath] = path.join("${workspaceFolder}", srcPath) ;
+
 			if (!config.pipeTransport.pipeProgram) {
 				return vscode.window.showInformationMessage("kubectl not found. Is it installed? Is it in the PATH?").then(_ => {
-					return undefined;	// abort launch
+					return undefined;
 				});
 			}
 			return [config];

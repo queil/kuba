@@ -2,13 +2,25 @@ import * as vscode from 'vscode';
 
 export type KubaConfigKey = 
     // build section
-    | 'build.relativeSrcDir' 
-    | 'build.relativeBuildOutputDir' 
-    | 'build.relativeTiltfilePath' 
-    | 'build.relativeDockerfileDir'
-    | 'build.relativeDockerBuildContextDir'
+    | 'build.srcDir' 
+    | 'build.outputDir' 
+
+    //docker section
+    | 'docker.appTargetDir'
+    | 'docker.defaultRegistry'
+    | 'docker.debuggerImage'
+    | 'docker.buildContextDir'
+
+    // kubernetes
+    | 'k8s.manifestsDir'
+   
+    //tilt section
+    | 'tilt.tiltfilePath' 
+    | 'tilt.allowedKubernetesContext'
+    | 'tilt.upBeforeAttach' 
+    | 'tilt.forwardPort'
+
     // debug section
-    | 'debug.runTiltUpBeforeAttach' 
     | 'debug.defaultRemoteProcessId';
 
 export type KubaStateKey = 'context' | 'namespace' | 'pod' | 'container' | 'tiltOutFile';

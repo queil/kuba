@@ -108,7 +108,7 @@ export class KubaTaskProvider implements vscode.TaskProvider {
     private async getKubaTasks(): Promise<vscode.Task[]> {
         if (!vscode.workspace.rootPath) { return []; }
     
-        const relativeTiltfilePath = wsCfg<string>("build.relativeTiltfilePath") || "Tiltfile";
+        const relativeTiltfilePath = wsCfg<string>("tilt.tiltfilePath") || "Tiltfile";
 
         let tiltDef: KubaTaskDefinition = {
             type: KubaTaskProvider.KubaType,
@@ -119,8 +119,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
         let tiltExecution = new vscode.ShellExecution(tiltDef.command, tiltDef.args);
         let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, tiltDef.label, 'Kuba', tiltExecution, ["$tilt"]);
     
-        let relativeSrcDir = wsCfg<string>("build.relativeSrcDir") || "src";
-        let relativeBuildOutputDir = wsCfg<string>("build.relativeBuildOutputDir") || "dev/bin";
+        let relativeSrcDir = wsCfg<string>("build.srcDir") || "src";
+        let relativeBuildOutputDir = wsCfg<string>("build.outputDir") || "dev/bin";
     
         let buildDef: KubaTaskDefinition = {
             type: KubaTaskProvider.KubaType,
