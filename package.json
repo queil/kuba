@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.4.1",
+	"version": "0.4.2",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -110,12 +110,6 @@
 						"default": "true",
 						"type": "boolean",
 						"description": "If true Kuba will run the tilt-up task before debugger attach.",
-						"scope": "window"
-					},
-					"kuba.debug.tiltUpStartTimeoutMs": {
-						"default": "30000",
-						"type": "number",
-						"description": "Tilt start up timeout milliseconds.",
 						"scope": "window"
 					},
 					"kuba.debug.defaultRemoteProcessId": {

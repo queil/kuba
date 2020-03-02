@@ -43,11 +43,13 @@ export class KubaTaskProvider implements vscode.TaskProvider {
                 }
                 await vscode.tasks.executeTask(tiltUp);
                 const logReader = new LogReader(this.TiltOutFileFullName);
-                while (this.isTaskRunning('tilt-up'))
+                let tiltReady = false;
+                while (this.isTaskRunning('tilt-up') && !tiltReady)
                 {
                    await this.waitForTiltOutput();
+                  
                    logReader.Stream(ln => { 
-                     //TODO: log messages handling 
+                     if (ln.indexOf("Forwarding") > -1) { tiltReady = true; }
                    });
                 }
 
@@ -71,7 +73,7 @@ export class KubaTaskProvider implements vscode.TaskProvider {
             });
         });
 
-        const timeout = new Promise<void>((resolve, _) => { setTimeout(() => resolve(), wsCfg<number>('debug.tiltUpStartTimeoutMs')); });
+        const timeout = new Promise<void>((resolve, _) => { setTimeout(() => resolve(), 1000); });
 
         var result = await Promise.race([tiltStarted, timeout]);
         this.TiltOutDirWatcher?.close();

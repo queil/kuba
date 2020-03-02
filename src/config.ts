@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 export type KubaConfigKey = 'build.relativeSrcDir' | 'build.relativeBuildOutputDir' | 'build.relativeTiltfilePath' |
-                            'debug.runTiltUpBeforeAttach' | 'debug.defaultRemoteProcessId' | 'debug.tiltUpStartTimeoutMs';
+                            'debug.runTiltUpBeforeAttach' | 'debug.defaultRemoteProcessId';
 
 export type KubaStateKey = 'context' | 'namespace' | 'pod' | 'container' | 'tiltOutFile';
 
