@@ -4,23 +4,11 @@
 
 Easy Kubernetes Debugging for .NET Core in VS Code.
 
-
-
 # What is Kuba?
 
 Kuba's goal is to make both local and remote debugging .NET Core code (C#, F#) in Kubernetes feel like the old good local-development-like experience (or even better!). Kuba joins the remote-debugging powers of the C# VS Code extension with the live-sync capabilities of [tilt](https://tilt.dev/).
 
-# Features
-
-* It generates `dotnet build` and `tilt up` tasks in `tasks.json`
-* It generates a remote-attach launch config in `launch.json`
-* It lets the user to pick the Kubernetes context, namespace, pod, and finally the container to debug before attaching
-* It auto-picks a resource given there is only a single one (e.g. only one pod in a namespace will be automatically picked)
-* It stores the last used configuration so attaching to the same container again is just hitting `F5`  
-* It uses tilt to inject files from your local build output straight into the target container
-* It uses tilt to auto port-forward your pod to `localhost` so your service/website is easily accessible
-* It respects the `kubectl` context and updates it if it changes externally
-* It does not require the Microsoft's VS Code Kubernetes extension
+![Kuba-Gif](/media/kuba.gif)
 
 # Requirements
 
