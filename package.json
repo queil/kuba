@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -20,7 +20,8 @@
 	"activationEvents": [
 		"onCommand:kuba.init",
 		"onCommand:kuba.attachTo",
-		"onCommand:kuba.resetSelection"
+		"onCommand:kuba.resetSelection",
+		"onDebug"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -107,7 +108,7 @@
 						"scope": "window"
 					},
 					"kuba.docker.appTargetDir": {
-						"default":"/app",
+						"default": "/app",
 						"type": "string",
 						"description": "The path where the app gets deployed into the container (asbolute)",
 						"scope": "window"
@@ -118,14 +119,14 @@
 						"description": "Docker build context path",
 						"scope": "window"
 					},
-					"kuba.docker.defaultRegistry":{
-						"default" :"quay.io/queil",
+					"kuba.docker.defaultRegistry": {
+						"default": "quay.io/queil",
 						"type": "string",
 						"description": "Default docker registry",
 						"scope": "global"
 					},
-					"kuba.docker.debuggerImage":{
-						"default" :"quay.io/queil/vsdbg:v0.1.0-aspnet-3.1",
+					"kuba.docker.debuggerImage": {
+						"default": "quay.io/queil/vsdbg:v0.1.0-aspnet-3.1",
 						"type": "string",
 						"description": "Default docker registry",
 						"scope": "window"
@@ -149,7 +150,7 @@
 						"scope": "window"
 					},
 					"kuba.tilt.forwardPort": {
-						"default":"8080",
+						"default": "8080",
 						"type": "int",
 						"description": "Tilt will port-forward the pod to localhost on this port.",
 						"scope": "window"
@@ -178,7 +179,9 @@
 		"test": "npm run compile && node ./node_modules/vscode/bin/test",
 		"deploy": "vsce publish --yarn"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"unique-filename": "^1.1.1"
+	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^10.12.21",
