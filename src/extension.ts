@@ -3,7 +3,7 @@ import { KubaTaskProvider } from './kubaTaskProvider';
 import { KubaConfigurationProvider } from './kubaConfigurationProvider';
 import { QuickPickPlus } from './quickPickPlus';
 import { Kubectl } from './kubectl';
-import { KubaWsState, setWsCfg } from './config';
+import { KubaWsState, setWsCfg, wsCfg } from './config';
 import * as path from 'path';
 import { InputBoxPlus } from './inputBoxPlus';
 import { generateAssets } from './assetsGenerator';
@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		const inputBox = vscode.window.createInputBox();
-		inputBox.totalSteps = 5;
+		inputBox.totalSteps = 7;
 		inputBox.ignoreFocusOut = true;	
 
         const wsRoot = vscode.workspace.workspaceFolders[0].uri;
@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Source code dir",
-                    defaultValue: 'src',
+                    defaultValue: wsCfg<string>('build.srcDir'),
                     buttons: [browseButton] 
                 },context).show()); 
 
@@ -85,15 +85,23 @@ export function activate(context: vscode.ExtensionContext) {
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Build output dir",
-                    defaultValue: "dev/bin",
+                    defaultValue: wsCfg<string>('build.outputDir'),
                     buttons: [browseButton] 
                 },context).show()); 
 
+			await setWsCfg('docker.appPort', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Application port",
+                    defaultValue: wsCfg<string>('docker.appPort'),
+                    buttons: []
+				},context).show());
+					
             await setWsCfg('docker.buildContextDir', 
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Docker build context dir",
-                    defaultValue: 'dev',
+                    defaultValue: wsCfg<string>('docker.buildContextDir'),
                     buttons: [browseButton]
                 },context).show()); 
 
@@ -101,8 +109,16 @@ export function activate(context: vscode.ExtensionContext) {
                 await new InputBoxPlus(inputBox, { 
                     step: step++,
                     title: "Configure: Tiltfile path",
-                    defaultValue: "Tiltfile",
+                    defaultValue: wsCfg<string>('tilt.tiltfilePath'),
                     buttons: [browseButton] 
+				},context).show()); 
+			
+			await setWsCfg('assets.overwrite', 
+                await new InputBoxPlus(inputBox, { 
+                    step: step++,
+                    title: "Configure: Overwrite assets?",
+					defaultValue:  wsCfg<string>('assets.overwrite'),
+					buttons : []
                 },context).show()); 
             
             await generateAssets();

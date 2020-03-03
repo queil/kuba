@@ -5,8 +5,9 @@ export type KubaConfigKey =
     | 'build.srcDir' 
     | 'build.outputDir' 
 
-    //docker section
+    // docker section
     | 'docker.appTargetDir'
+    | 'docker.appPort'
     | 'docker.defaultRegistry'
     | 'docker.debuggerImage'
     | 'docker.buildContextDir'
@@ -21,7 +22,10 @@ export type KubaConfigKey =
     | 'tilt.forwardPort'
 
     // debug section
-    | 'debug.defaultRemoteProcessId';
+    | 'debug.defaultRemoteProcessId'
+
+    // assets
+    | 'assets.overwrite';
 
 export type KubaStateKey = 'context' | 'namespace' | 'pod' | 'container' | 'tiltOutFile';
 

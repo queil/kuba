@@ -10,10 +10,13 @@ const allowedContext = wsCfg<string>('tilt.allowedKubernetesContext');
 const dockerBuildContextDir = wsCfg<string>('docker.buildContextDir');
 const liveSyncSrc = wsCfg<string>('build.outputDir');
 const appTargetPath = wsCfg<string>('docker.appTargetDir');
+const appPort = wsCfg<number>('docker.appPort');
 const port = wsCfg<number>('tilt.forwardPort');
 const tiltFilePath = wsCfg<string>('tilt.tiltfilePath');
 const buildOutputPath = wsCfg<string>('build.outputDir');
 const dockerRegistry = wsCfg<string>('docker.defaultRegistry');
+const overwrite = wsCfg<boolean>('assets.overwrite');
+
 
 const tiltfile = 
 `
@@ -77,7 +80,7 @@ spec:
       - image: ${projectName}
         name: ${projectName}
         ports:
-          - containerPort: 5000
+          - containerPort: ${appPort}
 `;
 
 const namespace = 
@@ -97,7 +100,7 @@ export async function generateAssets() {
 
         const createIfNotExists = (relativePath:string, assetData: string) => {
             const fullPath = path.join(wsRoot, relativePath);
-            if (!fs.existsSync(fullPath)) 
+            if (!fs.existsSync(fullPath) || overwrite) 
             {
                 fs.writeFile(fullPath, assetData, err => {
     

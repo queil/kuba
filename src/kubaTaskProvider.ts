@@ -28,20 +28,34 @@ export class KubaTaskProvider implements vscode.TaskProvider {
 
     public provideTasks(): Thenable<vscode.Task[]> | undefined { return this.getKubaTasks(); }
     public async resolveTask(_task: vscode.Task): Promise<vscode.Task | undefined> { return undefined; }
-    public async runTiltUp()
+    
+    public async runDotnetBuild()
     {
-        const task:KubaTaskName = 'tilt-up';
-        const tiltUp = await this.fetchTask(task);
-        if (tiltUp && !this.isTaskRunning(task)) 
+        const taskName:KubaTaskName = 'dotnet-build'; 
+        const buildTask = await this.fetchTask(taskName);
+        if (buildTask && !this.isTaskRunning(taskName)) {
+            await vscode.tasks.executeTask(buildTask);
+        }
+    }
+    
+    public async runTiltUp()
+    {       
+        const taskName:KubaTaskName = 'tilt-up';
+        const tiltTask = await this.fetchTask(taskName);
+        if (tiltTask && !this.isTaskRunning(taskName)) 
         { 
             try {
+
+                if (!fs.existsSync(wsCfg<string>('build.outputDir'))) {
+                    await this.runDotnetBuild();
+                }
 
                 if (!fs.existsSync(this.TiltOutDir)) {
                     fs.mkdir(this.TiltOutDir, err => { 
                         if (err) { vscode.window.showErrorMessage(`${err}`); }
                      });					
                 }
-                await vscode.tasks.executeTask(tiltUp);
+                await vscode.tasks.executeTask(tiltTask);
                 const logReader = new LogReader(this.TiltOutFileFullName);
                 let tiltReady = false;
                 while (this.isTaskRunning('tilt-up') && !tiltReady)

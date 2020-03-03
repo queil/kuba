@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.7.2",
+	"version": "0.7.4",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -18,10 +18,7 @@
 		"Debuggers"
 	],
 	"activationEvents": [
-		"onCommand:kuba.init",
-		"onCommand:kuba.attachTo",
-		"onCommand:kuba.resetSelection",
-		"onDebug"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -113,6 +110,12 @@
 						"description": "The path where the app gets deployed into the container (asbolute)",
 						"scope": "window"
 					},
+					"kuba.docker.appPort": {
+						"default": "80",
+						"type": "number",
+						"description": "This is the port the app listens in the container.",
+						"scope": "window"
+					},
 					"kuba.docker.buildContextDir": {
 						"default": "dev",
 						"type": "string",
@@ -165,6 +168,12 @@
 						"default": "1",
 						"type": "number",
 						"description": "If greater from 0 then C# debugger will auto-select it on attach.",
+						"scope": "window"
+					},
+					"kuba.assets.overwrite": {
+						"default": "false",
+						"type": "boolean",
+						"description": "If true Kuba will overwrite existing assets.",
 						"scope": "window"
 					}
 				}
