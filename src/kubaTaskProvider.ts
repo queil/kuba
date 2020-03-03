@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as process from 'process';
 import * as os from 'os';
 import { wsCfg } from './config';
 import { LogReader } from './logReader';
@@ -51,9 +52,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
                 }
 
                 if (!fs.existsSync(this.TiltOutDir)) {
-                    fs.mkdir(this.TiltOutDir, err => { 
-                        if (err) { vscode.window.showErrorMessage(`${err}`); }
-                     });					
+                    process.umask(0o000);
+                    fs.mkdirSync(this.TiltOutDir, 0o777);				
                 }
                 await vscode.tasks.executeTask(tiltTask);
                 const logReader = new LogReader(this.TiltOutFileFullName);
