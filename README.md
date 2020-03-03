@@ -19,17 +19,3 @@ Kuba's goal is to make both local and remote debugging .NET Core code (C#, F#) i
 * [.NET Core Sdk](https://dotnet.microsoft.com/download)
 * [C# for VSCode extension](https://github.com/OmniSharp/omnisharp-vscode)
 * If on Windows - [WSL2](https://docs.microsoft.com/en-us/windows/wsl/wsl2-install) as tilt just works better on Linux
-
-# Try it
-
-Before make sure you have a local (or a remote) Kubernetes cluster accessible via your `kubectl`.
-
-1. Install the extension in VS Code or [from here](https://marketplace.visualstudio.com/items?itemName=queil.kuba)
-2. Clone and open in VS Code my model project `git clone git@github.com:queil/k8s-debug-poc.git`
-3. Follow the instructions in [README.md](https://github.com/queil/k8s-debug-poc/blob/master/README.md)
-4. Hit `F1` and run the `Tasks: Configure Task` action for both `dotnet-build` and `tilt-up` tasks
-5. Run the `dotnet-build` task
-6. Run the `tilt-up` task
-7. Hit `F5` and go through the pod selection and enjoy the debugging.
-
-
