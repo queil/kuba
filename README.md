@@ -8,7 +8,7 @@ Easy Kubernetes Debugging for .NET Core in VS Code.
 
 Kuba's goal is to make both local and remote debugging .NET Core code (C#, F#) in Kubernetes feel like the old good local-development-like experience (or even better!). Kuba joins the remote-debugging powers of the C# VS Code extension with the live-sync capabilities of [tilt](https://tilt.dev/).
 
-![Kuba-Gif](/media/kuba.gif)
+![Kuba-Gif](/media/kuba2.gif)
 
 # Requirements
 
