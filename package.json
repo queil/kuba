@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.7.5",
+	"version": "0.7.6",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
@@ -131,8 +131,8 @@
 					"kuba.docker.debuggerImage": {
 						"default": "quay.io/queil/vsdbg:v0.1.0-aspnet-3.1",
 						"type": "string",
-						"description": "Default docker registry",
-						"scope": "window"
+						"description": "Default debug image",
+						"scope": "global"
 					},
 					"kuba.k8s.manifestsDir": {
 						"default": "dev/k8s",
