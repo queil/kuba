@@ -8,6 +8,7 @@
 	"author": {
 		"name": "queil"
 	},
+	"license": "Apache-2.0",
 	"repository": {
 		"url": "https://github.com/queil/kuba"
 	},
@@ -184,6 +185,7 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
+		"preinstall": "npx npm-force-resolutions",
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "npm run compile && node ./node_modules/vscode/bin/test",
 		"deploy": "vsce publish --yarn"
@@ -191,12 +193,16 @@
 	"dependencies": {
 		"unique-filename": "^1.1.1"
 	},
+	"resolutions": {
+		"minimist": "^1.2.5"
+	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.42",
-		"@types/node": "^10.12.21",
+		"@types/node": "^10.17.18",
 		"@types/utf8": "^2.1.6",
+		"minimist": "^1.2.5",
 		"tslint": "^5.12.1",
-		"typescript": "^3.3.1",
+		"typescript": "^3.8.3",
 		"unique-filename": "^1.1.1",
 		"vscode": "^1.1.28"
 	}
