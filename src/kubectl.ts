@@ -27,6 +27,6 @@ export class Kubectl {
     public async getContainersInPod(pod:string, ns: string, ignoreNotFound:boolean)
     {
         const stdout = await this.kubectl(`get pod ${pod} -n ${ns} ${ignoreNotFound ? "--ignore-not-found" : ""} -o jsonpath="{.spec.containers[*].name}"`);
-        return stdout.split("\n");
+        return stdout.split(" ");
     }
 }
