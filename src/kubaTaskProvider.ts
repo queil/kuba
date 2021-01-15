@@ -69,10 +69,10 @@ export class KubaTaskProvider implements vscode.TaskProvider {
                             if (match) {
 
                                 const uri = vscode.Uri.parse(`http://${match[1]}`); 
-                                const launchBroswer = "Launch browser";
+                                const launchBrowser = "Launch browser";
                                 tiltReady = true; 
-                                await vscode.window.showInformationMessage(`Kuba: The app is up at ${uri}`, launchBroswer).then(async msg => {
-                                    if (msg === launchBroswer)
+                                await vscode.window.showInformationMessage(`Kuba: The app is up at ${uri}`, launchBrowser).then(async msg => {
+                                    if (msg === launchBrowser)
                                     {
                                         await vscode.env.openExternal(uri);
                                     }
