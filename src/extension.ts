@@ -153,7 +153,8 @@ export function activate(context: vscode.ExtensionContext) {
 					title: "Pick Context",
 					placeholder: placeholder, 
 					itemsSource: () => kubectl.get("config get-contexts"),
-					autoPickOnSingleItem: true
+					autoPickOnSingleItem: true,
+					autoSelectOnName: wsCfg<string>("debug.attachKubernetesContext")
 					},context).show());
 
 			const namespace = 
@@ -163,7 +164,8 @@ export function activate(context: vscode.ExtensionContext) {
 						title: "Pick Namespace",
 						placeholder: placeholder,
 						itemsSource: () => kubectl.get("get namespaces"),
-						autoPickOnSingleItem: true
+						autoPickOnSingleItem: true,
+						autoSelectOnName: wsCfg<string>("debug.attachNamespace")
 					},context).show());
 
 			const pod = 
@@ -173,7 +175,8 @@ export function activate(context: vscode.ExtensionContext) {
 						title: "Pick Pod",
 						placeholder: placeholder,
 						itemsSource: () => kubectl.get(`get pod -n ${namespace}`),
-						autoPickOnSingleItem: true
+						autoPickOnSingleItem: true,
+						autoSelectOnName: undefined
 					},context).show());
 
 				await wsState.getWriteThrough('container',
@@ -182,7 +185,8 @@ export function activate(context: vscode.ExtensionContext) {
 						title: "Pick container",
 						placeholder: placeholder,
 						itemsSource: () => kubectl.getContainersInPod(pod, namespace, false),
-						autoPickOnSingleItem: true
+						autoPickOnSingleItem: true,
+						autoSelectOnName: undefined
 					},context).show());	
 		} 
 		finally 

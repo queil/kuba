@@ -1,209 +1,221 @@
 {
-	"name": "kuba",
-	"displayName": "Kuba",
-	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.7.7",
-	"icon": "media/kuba.128.png",
-	"publisher": "queil",
-	"author": {
-		"name": "queil"
-	},
-	"license": "Apache-2.0",
-	"repository": {
-		"url": "https://github.com/queil/kuba"
-	},
-	"engines": {
-		"vscode": "^1.33.0"
-	},
-	"categories": [
-		"Debuggers"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"debuggers": [
-			{
-				"type": "kuba",
-				"label": "Kuba"
-			}
-		],
-		"commands": [
-			{
-				"command": "kuba.attachTo",
-				"title": "Kuba: Attach To"
-			},
-			{
-				"command": "kuba.resetSelection",
-				"title": "Kuba: Reset debug target selection"
-			},
-			{
-				"command": "kuba.init",
-				"title": "Kuba: Init"
-			}
-		],
-		"viewsContainers": {
-			"activitybar": []
-		},
-		"views": {},
-		"menus": {},
-		"taskDefinitions": [
-			{
-				"type": "kuba",
-				"required": [
-					"label",
-					"command"
-				],
-				"properties": {
-					"label": {
-						"type": "string",
-						"description": "Task label"
-					},
-					"command": {
-						"type": "string",
-						"description": "Command to execute"
-					},
-					"args": {
-						"type": "array",
-						"description": "Task type"
-					}
-				}
-			}
-		],
-		"problemPatterns": [
-			{
-				"name": "tilt",
-				"regexp": "^(Error):\\\\s*([^(]+\\\\((.+):(\\\\d+:\\\\d+)\\\\).*)$",
-				"file": 3,
-				"location": 4,
-				"message": 2,
-				"severity": 1
-			}
-		],
-		"problemMatchers": [
-			{
-				"name": "tilt",
-				"owner": "tilt",
-				"fileLocation": "absolute",
-				"pattern": "$tilt"
-			}
-		],
-		"configuration": [
-			{
-				"title": "Kuba configuration",
-				"properties": {
-					"kuba.build.srcDir": {
-						"default": "src",
-						"type": "string",
-						"description": "Build input dir (relative)",
-						"scope": "window"
-					},
-					"kuba.build.outputDir": {
-						"default": "dev/bin",
-						"type": "string",
-						"description": "Build output path (relative)",
-						"scope": "window"
-					},
-					"kuba.docker.appTargetDir": {
-						"default": "/app",
-						"type": "string",
-						"description": "The path where the app gets deployed into the container (asbolute)",
-						"scope": "window"
-					},
-					"kuba.docker.appPort": {
-						"default": "80",
-						"type": "number",
-						"description": "This is the port the app listens in the container.",
-						"scope": "window"
-					},
-					"kuba.docker.buildContextDir": {
-						"default": "dev",
-						"type": "string",
-						"description": "Docker build context path",
-						"scope": "window"
-					},
-					"kuba.docker.defaultRegistry": {
-						"default": "quay.io/queil",
-						"type": "string",
-						"description": "Default docker registry",
-						"scope": "global"
-					},
-					"kuba.docker.debuggerImage": {
-						"default": "quay.io/queil/vsdbg:v0.1.0-aspnet-3.1",
-						"type": "string",
-						"description": "Default debug image",
-						"scope": "global"
-					},
-					"kuba.k8s.manifestsDir": {
-						"default": "dev/k8s",
-						"type": "string",
-						"description": "Kubernetes Manifests dir (relative)",
-						"scope": "window"
-					},
-					"kuba.tilt.tiltfilePath": {
-						"default": "Tiltfile",
-						"type": "string",
-						"description": "Tiltfile path (relative)",
-						"scope": "window"
-					},
-					"kuba.tilt.allowedKubernetesContext": {
-						"default": "docker-desktop",
-						"type": "string",
-						"description": "Tilt will treat any other context as potential Production environment.",
-						"scope": "window"
-					},
-					"kuba.tilt.forwardPort": {
-						"default": "8080",
-						"type": "int",
-						"description": "Tilt will port-forward the pod to localhost on this port.",
-						"scope": "window"
-					},
-					"kuba.tilt.upBeforeAttach": {
-						"default": "true",
-						"type": "boolean",
-						"description": "If true Kuba will run the tilt-up task before debugger attach.",
-						"scope": "window"
-					},
-					"kuba.debug.defaultRemoteProcessId": {
-						"default": "1",
-						"type": "number",
-						"description": "If greater from 0 then C# debugger will auto-select it on attach.",
-						"scope": "window"
-					},
-					"kuba.assets.overwrite": {
-						"default": "false",
-						"type": "boolean",
-						"description": "If true Kuba will overwrite existing assets.",
-						"scope": "window"
-					}
-				}
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"preinstall": "npx npm-force-resolutions",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "npm run compile && node ./node_modules/vscode/bin/test",
-		"deploy": "vsce publish --yarn"
-	},
-	"dependencies": {
-		"unique-filename": "^1.1.1"
-	},
-	"resolutions": {
-		"minimist": "^1.2.5"
-	},
-	"devDependencies": {
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^10.17.18",
-		"@types/utf8": "^2.1.6",
-		"minimist": "^1.2.5",
-		"tslint": "^5.12.1",
-		"typescript": "^3.8.3",
-		"unique-filename": "^1.1.1",
-		"vscode": "^1.1.28"
-	}
+  "name": "kuba",
+  "displayName": "Kuba",
+  "description": "Easy Kubernetes Debugging for .NET Core in VS Code",
+  "version": "0.7.7",
+  "icon": "media/kuba.128.png",
+  "publisher": "queil",
+  "author": {
+    "name": "queil"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "url": "https://github.com/queil/kuba"
+  },
+  "engines": {
+    "vscode": "^1.33.0"
+  },
+  "categories": [
+    "Debuggers"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "debuggers": [
+      {
+        "type": "kuba",
+        "label": "Kuba"
+      }
+    ],
+    "commands": [
+      {
+        "command": "kuba.attachTo",
+        "title": "Kuba: Attach To"
+      },
+      {
+        "command": "kuba.resetSelection",
+        "title": "Kuba: Reset debug target selection"
+      },
+      {
+        "command": "kuba.init",
+        "title": "Kuba: Init"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": []
+    },
+    "views": {},
+    "menus": {},
+    "taskDefinitions": [
+      {
+        "type": "kuba",
+        "required": [
+          "label",
+          "command"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Task label"
+          },
+          "command": {
+            "type": "string",
+            "description": "Command to execute"
+          },
+          "args": {
+            "type": "array",
+            "description": "Task type"
+          }
+        }
+      }
+    ],
+    "problemPatterns": [
+      {
+        "name": "tilt",
+        "regexp": "^(Error):\\\\s*([^(]+\\\\((.+):(\\\\d+:\\\\d+)\\\\).*)$",
+        "file": 3,
+        "location": 4,
+        "message": 2,
+        "severity": 1
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "tilt",
+        "owner": "tilt",
+        "fileLocation": "absolute",
+        "pattern": "$tilt"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Kuba configuration",
+        "properties": {
+          "kuba.build.srcDir": {
+            "default": "src",
+            "type": "string",
+            "description": "Build input dir (relative)",
+            "scope": "window"
+          },
+          "kuba.build.outputDir": {
+            "default": "dev/bin",
+            "type": "string",
+            "description": "Build output path (relative)",
+            "scope": "window"
+          },
+          "kuba.docker.appTargetDir": {
+            "default": "/app",
+            "type": "string",
+            "description": "The path where the app gets deployed into the container (asbolute)",
+            "scope": "window"
+          },
+          "kuba.docker.appPort": {
+            "default": "80",
+            "type": "number",
+            "description": "This is the port the app listens in the container.",
+            "scope": "window"
+          },
+          "kuba.docker.buildContextDir": {
+            "default": "dev",
+            "type": "string",
+            "description": "Docker build context path",
+            "scope": "window"
+          },
+          "kuba.docker.defaultRegistry": {
+            "default": "quay.io/queil",
+            "type": "string",
+            "description": "Default docker registry",
+            "scope": "global"
+          },
+          "kuba.docker.debuggerImage": {
+            "default": "quay.io/queil/vsdbg:v0.1.0-aspnet-3.1",
+            "type": "string",
+            "description": "Default debug image",
+            "scope": "global"
+          },
+          "kuba.k8s.manifestsDir": {
+            "default": "dev/k8s",
+            "type": "string",
+            "description": "Kubernetes Manifests dir (relative)",
+            "scope": "window"
+          },
+          "kuba.tilt.tiltfilePath": {
+            "default": "Tiltfile",
+            "type": "string",
+            "description": "Tiltfile path (relative)",
+            "scope": "window"
+          },
+          "kuba.tilt.allowedKubernetesContext": {
+            "default": "docker-desktop",
+            "type": "string",
+            "description": "Tilt will treat any other context as potential Production environment.",
+            "scope": "window"
+          },
+          "kuba.tilt.forwardPort": {
+            "default": "8080",
+            "type": "int",
+            "description": "Tilt will port-forward the pod to localhost on this port.",
+            "scope": "window"
+          },
+          "kuba.tilt.upBeforeAttach": {
+            "default": "true",
+            "type": "boolean",
+            "description": "If true Kuba will run the tilt-up task before debugger attach.",
+            "scope": "window"
+          },
+          "kuba.debug.defaultRemoteProcessId": {
+            "default": "1",
+            "type": "number",
+            "description": "If greater from 0 then C# debugger will auto-select it on attach.",
+            "scope": "window"
+          },
+          "kuba.debug.attachKubernetesContext" : {
+            "default": "",
+            "type": "string",
+            "description": "Kubernetes context to be auto-selected on attach.",
+            "scope": "window"
+          },
+          "kuba.debug.attachNamespace" : {
+            "default": "",
+            "type": "string",
+            "description": "Namespace to be auto-selected on attach.",
+            "scope": "window"
+          },
+          "kuba.assets.overwrite": {
+            "default": "false",
+            "type": "boolean",
+            "description": "If true Kuba will overwrite existing assets.",
+            "scope": "window"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "preinstall": "npx npm-force-resolutions",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "deploy": "vsce publish --yarn"
+  },
+  "dependencies": {
+    "unique-filename": "^1.1.1"
+  },
+  "resolutions": {
+    "minimist": "^1.2.5"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^10.17.18",
+    "@types/utf8": "^2.1.6",
+    "minimist": "^1.2.5",
+    "tslint": "^5.12.1",
+    "typescript": "^3.8.3",
+    "unique-filename": "^1.1.1",
+    "vscode": "^1.1.28"
+  }
 }

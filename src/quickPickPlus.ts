@@ -7,6 +7,7 @@ export interface QuickPickPlusOptions
     title: string;
     itemsSource: () => Promise<string[]>;
     autoPickOnSingleItem: boolean;
+    autoSelectOnName: string | undefined;
 }
 
 export class QuickPickPlus {
@@ -43,9 +44,14 @@ export class QuickPickPlus {
                 this.Pick.busy = false;
 
                 if (this.Options.autoPickOnSingleItem && this.Pick.items.length === 1) {
-                    this.Pick.placeholder = "Auto-selecting ...";
-                    await new Promise( resolve => setTimeout(resolve, 500) );
-                    this.Pick.selectedItems = [ this.Pick.items[0] ];
+                    await this.AutoSelect( this.Pick.items[0]);
+                }
+
+                if (this.Options.autoSelectOnName) {
+                    let matchingItem = this.Pick.items.find(x => x.label === this.Options.autoSelectOnName);
+                    if (matchingItem) {
+                        await this.AutoSelect(matchingItem);
+                    }
                 }
             } 
             catch (error) 
@@ -55,5 +61,14 @@ export class QuickPickPlus {
             }
         });
         return promise;
+    }
+
+    private async AutoSelect( item: vscode.QuickPickItem) 
+    {
+        this.Pick.placeholder = "Auto-selecting ...";
+        await new Promise( resolve => setTimeout(resolve, 200) );
+        this.Pick.activeItems = [ item ];
+        await new Promise( resolve => setTimeout(resolve, 500) );
+        this.Pick.selectedItems = [ item ];
     }
 }
