@@ -16,10 +16,10 @@ export function activate(context: vscode.ExtensionContext) {
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	let workspaceRoot = vscode.workspace.rootPath;
-	if (!workspaceRoot) { return; }
+	if (!vscode.workspace.workspaceFolders) { return; }
+	const channel = vscode.window.createOutputChannel("Kuba");	
 	const wsState = new KubaWsState(context);
-	const taskProvider = new KubaTaskProvider();
+	const taskProvider = new KubaTaskProvider(channel);
 	const provider = new KubaConfigurationProvider(context, taskProvider);
 	const kubectl = new Kubectl(stderr => vscode.window.showErrorMessage(stderr));
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
@@ -153,7 +153,8 @@ export function activate(context: vscode.ExtensionContext) {
 					title: "Pick Context",
 					placeholder: placeholder, 
 					itemsSource: () => kubectl.get("config get-contexts"),
-					autoPickOnSingleItem: true
+					autoPickOnSingleItem: true,
+					autoSelectOnName: wsCfg<string>("debug.attachKubernetesContext")
 					},context).show());
 
 			const namespace = 
@@ -163,7 +164,8 @@ export function activate(context: vscode.ExtensionContext) {
 						title: "Pick Namespace",
 						placeholder: placeholder,
 						itemsSource: () => kubectl.get("get namespaces"),
-						autoPickOnSingleItem: true
+						autoPickOnSingleItem: true,
+						autoSelectOnName: wsCfg<string>("debug.attachNamespace")
 					},context).show());
 
 			const pod = 
@@ -173,7 +175,8 @@ export function activate(context: vscode.ExtensionContext) {
 						title: "Pick Pod",
 						placeholder: placeholder,
 						itemsSource: () => kubectl.get(`get pod -n ${namespace}`),
-						autoPickOnSingleItem: true
+						autoPickOnSingleItem: true,
+						autoSelectOnName: undefined
 					},context).show());
 
 				await wsState.getWriteThrough('container',
@@ -182,7 +185,8 @@ export function activate(context: vscode.ExtensionContext) {
 						title: "Pick container",
 						placeholder: placeholder,
 						itemsSource: () => kubectl.getContainersInPod(pod, namespace, false),
-						autoPickOnSingleItem: true
+						autoPickOnSingleItem: true,
+						autoSelectOnName: undefined
 					},context).show());	
 		} 
 		finally 

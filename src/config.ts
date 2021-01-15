@@ -20,9 +20,12 @@ export type KubaConfigKey =
     | 'tilt.allowedKubernetesContext'
     | 'tilt.upBeforeAttach' 
     | 'tilt.forwardPort'
+    | 'tilt.appReadyRegEx'
 
     // debug section
     | 'debug.defaultRemoteProcessId'
+    | 'debug.attachNamespace'
+    | 'debug.attachKubernetesContext'
 
     // assets
     | 'assets.overwrite';
