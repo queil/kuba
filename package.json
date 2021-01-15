@@ -108,7 +108,7 @@
           "kuba.docker.appTargetDir": {
             "default": "/app",
             "type": "string",
-            "description": "The path where the app gets deployed into the container (asbolute)",
+            "description": "The path where the app gets deployed into the container (absolute)",
             "scope": "window"
           },
           "kuba.docker.appPort": {

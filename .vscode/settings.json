@@ -17,6 +17,11 @@
         "kubernetes",
         "kustomization",
         "kustomize",
+        "preinstall",
+        "queil",
         "tiltfile"
+    ],
+    "cSpell.ignoreWords": [
+        "consoleloggerparameters"
     ]
 }
