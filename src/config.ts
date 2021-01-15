@@ -23,6 +23,8 @@ export type KubaConfigKey =
 
     // debug section
     | 'debug.defaultRemoteProcessId'
+    | 'debug.attachNamespace'
+    | 'debug.attachKubernetesContext'
 
     // assets
     | 'assets.overwrite';
