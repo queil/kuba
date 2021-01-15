@@ -16,10 +16,10 @@ export function activate(context: vscode.ExtensionContext) {
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	let workspaceRoot = vscode.workspace.rootPath;
-	if (!workspaceRoot) { return; }
+	if (!vscode.workspace.workspaceFolders) { return; }
+	const channel = vscode.window.createOutputChannel("Kuba");	
 	const wsState = new KubaWsState(context);
-	const taskProvider = new KubaTaskProvider();
+	const taskProvider = new KubaTaskProvider(channel);
 	const provider = new KubaConfigurationProvider(context, taskProvider);
 	const kubectl = new Kubectl(stderr => vscode.window.showErrorMessage(stderr));
 	context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('coreclr', provider));
