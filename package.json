@@ -2,7 +2,7 @@
   "name": "kuba",
   "displayName": "Kuba",
   "description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-  "version": "0.7.7",
+  "version": "0.8.0",
   "icon": "media/kuba.128.png",
   "publisher": "queil",
   "author": {
@@ -171,13 +171,13 @@
             "description": "If greater from 0 then C# debugger will auto-select it on attach.",
             "scope": "window"
           },
-          "kuba.debug.attachKubernetesContext" : {
+          "kuba.debug.attachKubernetesContext": {
             "default": "",
             "type": "string",
             "description": "Kubernetes context to be auto-selected on attach.",
             "scope": "window"
           },
-          "kuba.debug.attachNamespace" : {
+          "kuba.debug.attachNamespace": {
             "default": "",
             "type": "string",
             "description": "Namespace to be auto-selected on attach.",
