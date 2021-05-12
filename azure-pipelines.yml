@@ -30,6 +30,7 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
 - bash: |
+    yarn set version berry
     echo ">>> Compile vscode-test"
     yarn && yarn compile
     echo ">>> Compiled vscode-test"
