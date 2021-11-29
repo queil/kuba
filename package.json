@@ -195,18 +195,18 @@
 		"unique-filename": "^1.1.1"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^10.17.18",
-		"@types/utf8": "^2.1.6",
-		"@types/vscode": "^1.56.0",
-		"glob": "^7.1.7",
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^9.0.0",
+		"@types/node": "^16.11.10",
+		"@types/utf8": "^3.0.0",
+		"@types/vscode": "^1.62.0",
+		"glob": "^7.2.0",
 		"minimist": "^1.2.5",
-		"mocha": "^8.4.0",
-		"tslint": "^5.12.1",
-		"typescript": "^3.8.3",
+		"mocha": "^9.1.3",
+		"tslint": "^6.1.3",
+		"typescript": "^4.5.2",
 		"unique-filename": "^1.1.1",
-		"vscode-test": "^1.5.2"
+		"vscode-test": "^1.6.1"
 	},
 	"packageManager": "yarn@3.1.1"
 }
