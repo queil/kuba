@@ -207,5 +207,6 @@
 		"typescript": "^3.8.3",
 		"unique-filename": "^1.1.1",
 		"vscode-test": "^1.5.2"
-	}
+	},
+	"packageManager": "yarn@3.1.1"
 }

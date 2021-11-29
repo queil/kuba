@@ -151,8 +151,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
         let buildExecution = new vscode.ProcessExecution(buildDef.command, buildDef.args);
         let buildTask = new vscode.Task(buildDef, vscode.TaskScope.Workspace, buildDef.label, 'Kuba', buildExecution, ["$msCompile"]);
 
-        tiltUpTask.group = 'build';
-        buildTask.group = 'build';
+        tiltUpTask.group = vscode.TaskGroup.Build;
+        buildTask.group = vscode.TaskGroup.Build;
         return [tiltUpTask, buildTask];
     }
 }
