@@ -2,7 +2,7 @@
 	"name": "kuba",
 	"displayName": "Kuba",
 	"description": "Easy Kubernetes Debugging for .NET Core in VS Code",
-	"version": "0.7.9",
+	"version": "0.8.0",
 	"icon": "media/kuba.128.png",
 	"publisher": "queil",
 	"author": {
