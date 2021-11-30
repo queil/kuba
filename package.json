@@ -192,7 +192,6 @@
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"lint": "eslint . --ext .ts,.tsx",
-		"preinstall": "npx npm-force-resolutions",
 		"pretest": "npm run compile",
 		"test": "node ./out/test/runTest.js",
 		"deploy": "vsce publish --yarn"
