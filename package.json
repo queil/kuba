@@ -165,6 +165,12 @@
 						"description": "If true Kuba will run the tilt-up task before debugger attach.",
 						"scope": "window"
 					},
+					"kuba.tilt.appReadyRegEx": {
+						"default": "NA",
+						"type": "string",
+						"description": "TBD.",
+						"scope": "window"
+					},
 					"kuba.debug.defaultRemoteProcessId": {
 						"default": "1",
 						"type": "number",
