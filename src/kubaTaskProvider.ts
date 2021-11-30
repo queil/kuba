@@ -18,19 +18,19 @@ interface KubaTaskDefinition extends vscode.TaskDefinition {
 export type KubaTaskName = 'dotnet-build' | 'tilt-up';
 
 export class KubaTaskProvider implements vscode.TaskProvider {
-    static KubaType: string = 'kuba';
-    static TiltUp: string = 'tilt-up';
-    static DotnetBuild: string = 'dotnet-build';
-    private static TiltAppReadyRegExp = new RegExp(wsCfg<RegExp>('tilt.appReadyRegEx'), "gm");
-    private TiltOutDirWatcher: fs.FSWatcher | undefined;
-    private TiltOutDir: string = path.join(os.tmpdir(), "tilt");
-    private TiltOutFileWatcher: fs.FSWatcher | undefined;
-    private TiltOutFileFullName: string = uniqueFilename(this.TiltOutDir, "tilt");
-    private TiltOutFileName: string = path.basename(this.TiltOutFileFullName);
-    private Output: vscode.OutputChannel;
+    static kubaType: string = 'kuba';
+    static tiltUp: string = 'tilt-up';
+    static dotnetBuild: string = 'dotnet-build';
+    private static tiltAppReadyRegExp = new RegExp(wsCfg<RegExp>('tilt.appReadyRegEx'), "gm");
+    private tiltOutDirWatcher: fs.FSWatcher | undefined;
+    private tiltOutDir: string = path.join(os.tmpdir(), "tilt");
+    private tiltOutFileWatcher: fs.FSWatcher | undefined;
+    private tiltOutFileFullName: string = uniqueFilename(this.tiltOutDir, "tilt");
+    private tiltOutFileName: string = path.basename(this.tiltOutFileFullName);
+    private output: vscode.OutputChannel;
 
     constructor(channel: vscode.OutputChannel) {
-        this.Output = channel;
+        this.output = channel;
     }
 
     public provideTasks(): Thenable<vscode.Task[]> | undefined { return this.getKubaTasks(); }
@@ -54,25 +54,25 @@ export class KubaTaskProvider implements vscode.TaskProvider {
                     await this.runDotnetBuild();
                 }
 
-                if (!fs.existsSync(this.TiltOutDir)) {
+                if (!fs.existsSync(this.tiltOutDir)) {
                     process.umask(0o000);
-                    fs.mkdirSync(this.TiltOutDir, 0o777);
+                    fs.mkdirSync(this.tiltOutDir, 0o777);
                 }
                 await vscode.tasks.executeTask(tiltTask);
-                const logReader = new LogReader(this.TiltOutFileFullName);
+                const logReader = new LogReader(this.tiltOutFileFullName);
                 let foundReadyMessage = false;
                 await this.waitForTiltOutput();
 
-                await logReader.Stream(async chunk => {
+                await logReader.stream(async chunk => {
                     if (!foundReadyMessage) {
 
-                        const match = KubaTaskProvider.TiltAppReadyRegExp.exec(chunk);
+                        const match = KubaTaskProvider.tiltAppReadyRegExp.exec(chunk);
                         if (match) { foundReadyMessage = true; }
                     }
                 });
 
                 if (!foundReadyMessage) {
-                    this.Output.appendLine("Could not find a matching readiness message. Assuming Tilt is up and running.");
+                    this.output.appendLine("Could not find a matching readiness message. Assuming Tilt is up and running.");
                 }
 
             } catch (r) {
@@ -84,8 +84,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
     private async waitForTiltOutput() {
         var tiltStarted = new Promise<void>((resolve, _) => {
 
-            this.TiltOutDirWatcher = fs.watch(this.TiltOutDir, (event, name) => {
-                if (event === 'change' && name === this.TiltOutFileName) {
+            this.tiltOutDirWatcher = fs.watch(this.tiltOutDir, (event, name) => {
+                if (event === 'change' && name === this.tiltOutFileName) {
                     resolve();
                 }
             });
@@ -94,22 +94,24 @@ export class KubaTaskProvider implements vscode.TaskProvider {
         const timeout = new Promise<void>((resolve, _) => { setTimeout(() => resolve(), 1000); });
 
         var result = await Promise.race([tiltStarted, timeout]);
-        this.TiltOutDirWatcher?.close();
+        this.tiltOutDirWatcher?.close();
         return result;
     }
 
     public async onTiltExited() {
 
-        if (this.TiltOutFileWatcher) { this.TiltOutFileWatcher.close(); }
-        if (this.TiltOutFileFullName) {
-            fs.unlink(this.TiltOutFileFullName, (err) => {
-                if (err) { vscode.window.showErrorMessage(`${err}`); }
+        if (this.tiltOutFileWatcher) { this.tiltOutFileWatcher.close(); }
+        if (this.tiltOutFileFullName) {
+            fs.unlink(this.tiltOutFileFullName, (err) => {
+                if (err) {
+                    void vscode.window.showErrorMessage(`${err}`);
+                }
             });
         }
     }
 
     public isTaskRunning(task: KubaTaskName) {
-        const isRunning = vscode.tasks.taskExecutions.some(t => t.task.definition.type === KubaTaskProvider.KubaType && t.task.name === task);
+        const isRunning = vscode.tasks.taskExecutions.some(t => t.task.definition.type === KubaTaskProvider.kubaType && t.task.name === task);
         return isRunning;
     }
     public focusOn(task: KubaTaskName) {
@@ -118,7 +120,7 @@ export class KubaTaskProvider implements vscode.TaskProvider {
     }
 
     private async fetchTask(task: KubaTaskName) {
-        const kubaTasks = await vscode.tasks.fetchTasks({ type: KubaTaskProvider.KubaType });
+        const kubaTasks = await vscode.tasks.fetchTasks({ type: KubaTaskProvider.kubaType });
         return kubaTasks.find(t => t.name === task);
     }
     private async getKubaTasks(): Promise<vscode.Task[]> {
@@ -127,10 +129,10 @@ export class KubaTaskProvider implements vscode.TaskProvider {
         const relativeTiltfilePath = wsCfg<string>("tilt.tiltfilePath") || "Tiltfile";
 
         let tiltDef: KubaTaskDefinition = {
-            type: KubaTaskProvider.KubaType,
-            label: KubaTaskProvider.TiltUp,
+            type: KubaTaskProvider.kubaType,
+            label: KubaTaskProvider.tiltUp,
             command: 'tilt',
-            args: ["up", "--file=" + path.join("${workspaceFolder}", relativeTiltfilePath), "--hud=false", "--debug=true", "|", "tee", `"${this.TiltOutFileFullName}"`]
+            args: ["up", "--file=" + path.join("${workspaceFolder}", relativeTiltfilePath), "--hud=false", "--debug=true", "|", "tee", `"${this.tiltOutFileFullName}"`]
         };
         let tiltExecution = new vscode.ShellExecution(tiltDef.command, tiltDef.args);
         let tiltUpTask = new vscode.Task(tiltDef, vscode.TaskScope.Workspace, tiltDef.label, 'Kuba', tiltExecution, ["$tilt"]);
@@ -139,8 +141,8 @@ export class KubaTaskProvider implements vscode.TaskProvider {
         let relativeBuildOutputDir = wsCfg<string>("build.outputDir") || "dev/bin";
 
         let buildDef: KubaTaskDefinition = {
-            type: KubaTaskProvider.KubaType,
-            label: KubaTaskProvider.DotnetBuild,
+            type: KubaTaskProvider.kubaType,
+            label: KubaTaskProvider.dotnetBuild,
             command: 'dotnet',
             args: [
                 "build", path.join("${workspaceFolder}", relativeSrcDir), "/property:GenerateFullPaths=true", "/consoleloggerparameters:NoSummary",
