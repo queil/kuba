@@ -7,11 +7,11 @@ trigger:
 strategy:
   matrix:
     linux:
-      imageName: 'ubuntu-16.04'
+      imageName: 'ubuntu-latest'
     mac:
-      imageName: 'macos-10.15'
+      imageName: 'macos-latest'
     windows:
-      imageName: 'vs2017-win2016'
+      imageName: 'windows-latest'
 
 pool:
   vmImage: $(imageName)
@@ -20,7 +20,7 @@ steps:
 
 - task: NodeTool@0
   inputs:
-    versionSpec: '13.x'
+    versionSpec: '15.x'
   displayName: 'Install Node.js'
 
 - bash: |
@@ -34,7 +34,6 @@ steps:
     echo ">>> Compile vscode-test"
     yarn && yarn compile
     echo ">>> Compiled vscode-test"
-    cd sample
     echo ">>> Run sample integration test"
     yarn && yarn compile && yarn test
   displayName: Run Tests

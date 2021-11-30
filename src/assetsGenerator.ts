@@ -18,12 +18,12 @@ const dockerRegistry = wsCfg<string>('docker.defaultRegistry');
 const overwrite = wsCfg<boolean>('assets.overwrite');
 
 
-const tiltfile = 
-`
+const tiltfile =
+  `
 allow_k8s_contexts('${allowedContext}')
 k8s_yaml(kustomize('${manifestsDir}'))
 
-docker_build('${dockerRegistry}/${projectName}', 
+docker_build('${dockerRegistry}/${projectName}',
              '${dockerBuildContextDir}',
              live_update=[
                  sync('${liveSyncSrc}', '${appTargetPath}'),
@@ -36,7 +36,7 @@ k8s_resource('${projectName}', port_forwards=${port})
 const debuggerImage = wsCfg<string>('docker.debuggerImage');
 
 const debugDockerFile =
-`
+  `
 FROM ${debuggerImage}
 
 WORKDIR ${appTargetPath}
@@ -45,7 +45,7 @@ ENTRYPOINT ["dotnet", "${projectName}.dll"]
 `;
 
 const kustomization =
-`
+  `
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: ${projectName}
@@ -59,7 +59,7 @@ images:
 `;
 
 const deployment =
-`
+  `
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -83,8 +83,8 @@ spec:
           - containerPort: ${appPort}
 `;
 
-const namespace = 
-`
+const namespace =
+  `
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -93,36 +93,33 @@ metadata:
 
 export async function generateAssets() {
 
-    try {
+  try {
 
-        const wsRoot = vscode.workspace.rootPath;
-        if (!wsRoot) { return; }
+    const wsRoot = vscode.workspace.rootPath;
+    if (!wsRoot) { return; }
 
-        const createIfNotExists = (relativePath:string, assetData: string) => {
-            const fullPath = path.join(wsRoot, relativePath);
-            if (!fs.existsSync(fullPath) || overwrite) 
-            {
-                fs.writeFile(fullPath, assetData, err => {
-    
-                    if (err) { vscode.window.showErrorMessage(`${err}`); }
-                });
-            }
-        };
-       
-        const manifestsDirFullPath = path.join(wsRoot, manifestsDir);
-        if (!fs.existsSync(manifestsDirFullPath)) 
-        {
-            fs.mkdirSync(manifestsDirFullPath, { recursive:true} );
-        }
+    const createIfNotExists = (relativePath: string, assetData: string) => {
+      const fullPath = path.join(wsRoot, relativePath);
+      if (!fs.existsSync(fullPath) || overwrite) {
+        fs.writeFile(fullPath, assetData, err => {
 
-        createIfNotExists(tiltFilePath, tiltfile);
-        createIfNotExists(path.join(manifestsDir, "kustomization.yaml"), kustomization);
-        createIfNotExists(path.join(manifestsDir, "deployment.yaml"), deployment);
-        createIfNotExists(path.join(manifestsDir, "namespace.yaml"), namespace);
-        createIfNotExists(path.join(dockerBuildContextDir, "Dockerfile"), debugDockerFile);
+          if (err) { void vscode.window.showErrorMessage(`${err}`); }
+        });
+      }
+    };
+
+    const manifestsDirFullPath = path.join(wsRoot, manifestsDir);
+    if (!fs.existsSync(manifestsDirFullPath)) {
+      fs.mkdirSync(manifestsDirFullPath, { recursive: true });
     }
-    catch (err) 
-    {
-        vscode.window.showErrorMessage(`${err}`);
-    }
+
+    createIfNotExists(tiltFilePath, tiltfile);
+    createIfNotExists(path.join(manifestsDir, "kustomization.yaml"), kustomization);
+    createIfNotExists(path.join(manifestsDir, "deployment.yaml"), deployment);
+    createIfNotExists(path.join(manifestsDir, "namespace.yaml"), namespace);
+    createIfNotExists(path.join(dockerBuildContextDir, "Dockerfile"), debugDockerFile);
+  }
+  catch (err) {
+    void vscode.window.showErrorMessage(`${err}`);
+  }
 }
